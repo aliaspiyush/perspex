@@ -1,8 +1,7 @@
 // Gemini API Client — API key is read from environment (VITE_GEMINI_API_KEY)
 // Never expose or accept the key from user input.
 
-const GEMINI_MODEL = 'gemini-1.5-flash';
-const BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+import { GoogleGenAI } from "@google/genai";
 
 function getApiKey() {
   const key = import.meta.env.VITE_GEMINI_API_KEY;
@@ -10,45 +9,16 @@ function getApiKey() {
   return key;
 }
 
-async function callGemini(prompt, jsonMode = true) {
-  const apiKey = getApiKey();
-  const url = `${BASE_URL}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
-  const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.1,
-      topP: 0.8,
-      maxOutputTokens: 8192,
-      ...(jsonMode ? { responseMimeType: 'application/json' } : {}),
-    },
-  };
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Gemini API error ${res.status}`);
+function handleGeminiError(error) {
+  if (error.status === 404) {
+    throw new Error("Model not found. Check model name and API version.");
   }
-
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty response from Gemini');
-
-  if (jsonMode) {
-    try {
-      return JSON.parse(text);
-    } catch {
-      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-      if (match) return JSON.parse(match[1]);
-      throw new Error('Could not parse JSON from Gemini response');
-    }
+  if (error.status === 429) {
+    throw new Error("Rate limit exceeded. Retry after backoff.");
   }
-  return text;
+  throw error;
 }
 
 // ── PHASE 1: Parse JD into structured ranking intent ──────────────────────
@@ -82,7 +52,29 @@ Return ONLY a JSON object with this exact structure:
   }
 }`;
 
-  return await callGemini(prompt, true);
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+        topP: 0.8,
+        maxOutputTokens: 8192,
+      }
+    });
+
+    const text = response.text;
+    try {
+      return JSON.parse(text);
+    } catch {
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (match) return JSON.parse(match[1]);
+      throw new Error('Could not parse JSON from Gemini response');
+    }
+  } catch (error) {
+    handleGeminiError(error);
+  }
 }
 
 // ── PHASE 2: Score a batch of candidates against the parsed JD ─────────────
@@ -146,7 +138,29 @@ Return ONLY a JSON array with exactly ${candidates.length} objects in the same o
   }
 ]`;
 
-  return await callGemini(prompt, true);
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+        topP: 0.8,
+        maxOutputTokens: 8192,
+      }
+    });
+
+    const text = response.text;
+    try {
+      return JSON.parse(text);
+    } catch {
+      const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+      if (match) return JSON.parse(match[1]);
+      throw new Error('Could not parse JSON from Gemini response');
+    }
+  } catch (error) {
+    handleGeminiError(error);
+  }
 }
 
 // ── PHASE 3: Generate executive summary ───────────────────────────────────
@@ -159,5 +173,18 @@ ${top5.map((c, i) => `#${i + 1}: ${c.candidate_id} — Score: ${c.overall_score}
 
 Write a brief analytical summary explaining the quality of the shortlist and what made these candidates stand out. Be specific.`;
 
-  return await callGemini(prompt, false);
+  try {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        temperature: 0.1,
+        topP: 0.8,
+        maxOutputTokens: 8192,
+      }
+    });
+    return response.text;
+  } catch (error) {
+    handleGeminiError(error);
+  }
 }
