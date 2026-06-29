@@ -1,49 +1,56 @@
-@import url('https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @import "tailwindcss";
 
 @layer base {
   :root {
     --bg: #ffffff;
-    --surface: #f9f9f9;
-    --surface-2: #f2f2f2;
-    --surface-offset: #ebebeb;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --surface-offset: #f5f5f5;
     --border: #e5e5e5;
-    --divider: #eeeeee;
-    --text: #111111;
-    --text-muted: #6b6b6b;
-    --text-faint: #999999;
-    --primary: #111111;
-    --primary-hover: #333333;
-    --primary-fg: #ffffff;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --radius: 6px;
-    --transition: 150ms ease;
+    --divider: #e5e5e5;
+    --text: #000000;
+    --text-muted: #525252;
+    --text-faint: #a3a3a3;
     
-    --font-body: 'Satoshi', sans-serif;
-    --font-display: 'Instrument Serif', serif;
+    --radius: 0px;
+    
+    --font-body: 'Inter', sans-serif;
+    --font-display: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
 
   [data-theme="dark"] {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --surface-2: #1e1e1e;
-    --surface-offset: #282828;
-    --border: #2e2e2e;
-    --divider: #1f1f1f;
-    --text: #ededed;
-    --text-muted: #a1a1a1;
-    --text-faint: #737373;
-    --primary: #ededed;
-    --primary-hover: #d1d1d1;
-    --primary-fg: #0a0a0a;
+    --bg: #000000;
+    --surface: #000000;
+    --surface-2: #000000;
+    --surface-offset: #1a1a1a;
+    --border: #333333;
+    --divider: #333333;
+    --text: #ffffff;
+    --text-muted: #a3a3a3;
+    --text-faint: #525252;
   }
 
-  html {
+  html, body {
     font-family: var(--font-body);
     background-color: var(--bg);
     color: var(--text);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Zero vertical scrolling */
+  }
+
+  #root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 500;
+    margin: 0;
   }
 }

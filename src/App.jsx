@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, File, Settings } from 'lucide-react';
 import './styles/tokens.css';
 import SetupView    from './components/SetupView';
 import PipelineView from './components/PipelineView';
 import ResultsView  from './components/ResultsView';
+import PythonTerminal from './components/PythonTerminal';
+import SidebarConfig from './components/SidebarConfig';
 
 export default function App() {
   const [theme, setTheme] = useState(() =>
@@ -44,55 +46,70 @@ export default function App() {
     setFinalResult(null);
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] font-[family-name:var(--font-body)]">
+  const isResults = stage === 'results';
 
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-[var(--border)] h-12 flex items-center justify-between px-6 bg-[var(--bg)]">
-        <div className="flex items-center gap-2.5">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[var(--text)]">
-            <rect x="2" y="2" width="20" height="20" stroke="currentColor" strokeWidth="1.8"/>
-            <line x1="8" y1="2" x2="8" y2="22" stroke="currentColor" strokeWidth="1.8"/>
-            <line x1="2" y1="10" x2="8" y2="10" stroke="currentColor" strokeWidth="1.8"/>
-          </svg>
-          <span className="font-semibold text-sm tracking-tight">Perspex</span>
-          <span className="text-[var(--text-faint)] text-xs hidden sm:inline">/ AI Candidate Ranker</span>
+  return (
+    <div className="h-full flex flex-col bg-[var(--bg)] text-[var(--text)] font-[family-name:var(--font-body)]">
+
+      {/* HEADER ROW — 48px tall, full width */}
+      <header className="shrink-0 h-12 border-b border-[var(--border)] flex items-center justify-between px-6 bg-[var(--bg)] z-30">
+        <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest font-semibold">
+          <span className="text-[var(--text-h)]">Perspex</span>
+        </div>
+
+        <div className="flex items-center gap-4 text-xs">
+          {['setup', 'running', 'results'].map((s, i) => (
+            <React.Fragment key={s}>
+              <span className={stage === s ? 'text-[var(--text-h)] font-bold underline underline-offset-4' : 'text-[var(--text-muted)]'}>
+                {i + 1}. {s.charAt(0).toUpperCase() + s.slice(1)}
+              </span>
+              {i < 2 && <span className="text-[var(--text-muted)]">→</span>}
+            </React.Fragment>
+          ))}
         </div>
 
         <div className="flex items-center gap-3">
-          {stage !== 'setup' && (
-            <button
-              onClick={handleReset}
-              className="text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors px-3 py-1.5 border border-[var(--border)] rounded hover:bg-[var(--surface-offset)]"
-            >
-              ← New Run
-            </button>
-          )}
-          <div className="flex items-center gap-2 text-xs text-[var(--text-muted)]">
-            {['setup', 'running', 'results'].map((s, i) => (
-              <React.Fragment key={s}>
-                <span className={stage === s ? 'text-[var(--text)] font-medium' : ''}>
-                  {i + 1}. {s.charAt(0).toUpperCase() + s.slice(1)}
-                </span>
-                {i < 2 && <span className="text-[var(--text-faint)]">→</span>}
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="w-px h-4 bg-[var(--divider)]" />
           <button
             onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-            className="p-1.5 rounded text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-offset)] transition-colors"
+            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-h)] transition-colors"
           >
             {theme === 'light' ? <Moon size={14}/> : <Sun size={14}/>}
           </button>
         </div>
       </header>
 
-      {/* Content */}
-      <main className="flex-1">
-        {stage === 'setup'   && <SetupView    jdText={jdText} onStart={handleStart} />}
-        {stage === 'running' && <PipelineView jdText={jdText} onProgress={handleProgress} />}
-        {stage === 'results' && <ResultsView  result={finalResult} onReset={handleReset} />}
+      {/* MAIN GRID */}
+      <main 
+        className="flex-1 min-h-0 grid" 
+        style={{ 
+          gridTemplateColumns: isResults ? '64px 1fr' : '280px 1fr 280px' 
+        }}
+      >
+        {/* LEFT COLUMN */}
+        {isResults ? (
+          <div className="h-full bg-[var(--surface-offset)] border-r border-[var(--border)] flex flex-col items-center py-6 gap-6">
+            <button className="p-2 text-[var(--text-muted)] hover:text-[var(--text-h)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] rounded-[var(--radius)] transition-colors">
+              <File size={16} />
+            </button>
+            <button className="p-2 text-[var(--text-muted)] hover:text-[var(--text-h)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] rounded-[var(--radius)] transition-colors">
+              <Settings size={16} />
+            </button>
+          </div>
+        ) : (
+          <PythonTerminal />
+        )}
+
+        {/* CENTER COLUMN */}
+        <div className="h-full overflow-y-auto flex flex-col bg-[var(--bg)] relative">
+          {stage === 'setup'   && <SetupView    jdText={jdText} onStart={handleStart} />}
+          {stage === 'running' && <PipelineView jdText={jdText} onProgress={handleProgress} />}
+          {stage === 'results' && <ResultsView  result={finalResult} onReset={handleReset} />}
+        </div>
+
+        {/* RIGHT COLUMN (Hidden in Results) */}
+        {!isResults && (
+          <SidebarConfig />
+        )}
       </main>
     </div>
   );
