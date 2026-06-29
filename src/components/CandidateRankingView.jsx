@@ -3,218 +3,254 @@ import { fetchCandidates } from '../utils/adapters';
 import { ChevronUp, ChevronDown, X } from 'lucide-react';
 
 export default function CandidateRankingView() {
+  const [candidates, setCandidates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [sortConfig, setSortConfig] = useState({ key: 'rank', direction: 'asc' });
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
-  const [rawCandidates, setRawCandidates] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
-    const load = async () => {
-      const data = await fetchCandidates();
-      setRawCandidates(data);
+    fetchCandidates().then(data => {
+      setCandidates(data);
       setLoading(false);
-    };
-    load();
+    });
   }, []);
 
-  const scoredCandidates = useMemo(() => {
-    // The backend already calculated match_score, semantic, career, behavioral, penalty.
-    const scored = rawCandidates.map(c => {
-      return {
-        ...c,
-        semantic: c.semantic || 0,
-        career: c.career || 0,
-        signal: c.behavioral || 0, // In backend it's 'behavioral', mapping to 'signal' for this UI
-        penalty: c.penalty || 0,
-        match_score: c.match_score || 0
-      };
+  const sorted = useMemo(() => {
+    const arr = [...candidates];
+    arr.sort((a, b) => {
+      const av = a[sortConfig.key] ?? 0;
+      const bv = b[sortConfig.key] ?? 0;
+      if (av < bv) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (av > bv) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
     });
+    return arr;
+  }, [candidates, sortConfig]);
 
-    if (sortConfig.key !== 'rank' || sortConfig.direction !== 'asc') {
-      scored.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) return sortConfig.direction === 'asc' ? -1 : 1;
-        if (a[sortConfig.key] > b[sortConfig.key]) return sortConfig.direction === 'asc' ? 1 : -1;
-        return 0;
-      });
-    }
+  const requestSort = key => {
+    setSortConfig(prev =>
+      prev.key === key
+        ? { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+        : { key, direction: key === 'rank' ? 'asc' : 'desc' }
+    );
+  };
 
-    return scored;
-  }, [rawCandidates, sortConfig]);
+  const SortIcon = ({ colKey }) => {
+    if (sortConfig.key !== colKey) return <ChevronUp size={12} className="opacity-20" />;
+    return sortConfig.direction === 'asc'
+      ? <ChevronUp size={12} />
+      : <ChevronDown size={12} />;
+  };
+
+  const th = 'px-4 py-3 text-left text-xs font-semibold text-[var(--text-muted)] cursor-pointer select-none sticky top-0 bg-[var(--surface)] border-b border-[var(--divider)] hover:text-[var(--text)] transition-colors';
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-12 max-w-6xl mx-auto h-[calc(100vh-140px)]">
+      <div className="flex flex-col gap-8 h-[calc(100vh-140px)]">
         <div className="flex flex-col gap-2 shrink-0">
           <h1 className="text-2xl font-[family-name:var(--font-display)]">Candidate Ranking Workbench</h1>
+          <p className="text-sm text-[var(--text-muted)]">Live view of AI-scored candidates across 3 signal dimensions</p>
         </div>
-        <div className="flex-1 flex items-center justify-center text-[var(--text-muted)] text-sm border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)]">
-          Loading actual candidate data from backend...
+        <div className="flex-1 flex items-center justify-center border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)] text-sm text-[var(--text-muted)]">
+          Running scoring engine on real candidate data...
         </div>
       </div>
     );
   }
 
-  const requestSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const thClass = "px-4 py-3 text-left text-[11px] font-semibold tracking-wider uppercase text-[var(--text-muted)] cursor-pointer hover:bg-[var(--surface-2)] select-none border-b border-[var(--divider)] sticky top-0 bg-[var(--surface)] z-10";
-
   return (
-    <div className="flex flex-col gap-8 h-full relative max-w-[1400px] mx-auto">
-      
-      <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-[family-name:var(--font-display)]">Candidate Ranking Workspace</h1>
-        <p className="text-sm text-[var(--text-muted)]">Evaluate candidates beyond keyword overlap by integrating contextual relevance and behavioral signals.</p>
+    <div className="flex flex-col gap-8 h-full relative">
+      <div className="flex justify-between items-start shrink-0">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-[family-name:var(--font-display)]">Candidate Ranking Workbench</h1>
+          <p className="text-sm text-[var(--text-muted)]">
+            {candidates.length} candidates scored across Semantic · Career · Behavioral dimensions
+          </p>
+        </div>
+        <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+          <span className="font-mono border border-[var(--border)] rounded px-2 py-1 bg-[var(--surface)]">
+            Weights: 40% / 35% / 25%
+          </span>
+        </div>
       </div>
 
-      <div className="flex flex-col h-[calc(100vh-220px)] border border-[var(--border)] bg-[var(--surface)]">
-        
-        {/* Top Summary Panel */}
-        <div className="flex border-b border-[var(--divider)] bg-[var(--bg)] text-sm">
-          <div className="flex-1 p-4 flex flex-col gap-1 border-r border-[var(--divider)]">
-            <span className="text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Target Role</span>
-            <span className="font-medium font-mono">Senior AI Engineer</span>
-          </div>
-          <div className="flex-1 p-4 flex flex-col gap-1 border-r border-[var(--divider)]">
-            <span className="text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Semantic Weight</span>
-            <span className="font-mono">40%</span>
-          </div>
-          <div className="flex-1 p-4 flex flex-col gap-1 border-r border-[var(--divider)]">
-            <span className="text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Career Relevance</span>
-            <span className="font-mono">35%</span>
-          </div>
-          <div className="flex-1 p-4 flex flex-col gap-1">
-            <span className="text-[10px] uppercase text-[var(--text-muted)] tracking-wider">Signal Integration</span>
-            <span className="font-mono">25%</span>
-          </div>
-        </div>
-
-        {/* Table Container */}
-        <div className="flex-1 overflow-x-auto overflow-y-auto">
-          <table className="w-full text-sm whitespace-nowrap border-collapse">
-            <thead>
-              <tr>
-                {[
-                  { k: 'rank', l: 'Rank' },
-                  { k: 'id', l: 'Candidate ID' },
-                  { k: 'match_score', l: 'Match Score' },
-                  { k: 'semantic', l: 'Semantic Fit' },
-                  { k: 'career', l: 'Career Relevance' },
-                  { k: 'signal', l: 'Signal Score' },
-                  { k: 'penalty', l: 'Risk Penalty' }
-                ].map(col => (
-                  <th key={col.k} className={thClass} onClick={() => requestSort(col.k)}>
-                    <div className="flex items-center gap-1">
-                      {col.l}
-                      {sortConfig.key === col.k && (
-                        sortConfig.direction === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
-                      )}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="font-mono bg-[var(--bg)]">
-              {scoredCandidates.map((row) => (
-                <tr 
-                  key={row.id} 
-                  onClick={() => setSelectedCandidate(row)}
-                  className={`border-b border-[var(--divider)] last:border-0 cursor-pointer transition-colors ${row.rank <= 10 ? 'bg-[var(--surface)] hover:bg-[var(--surface-2)]' : 'hover:bg-[var(--surface-offset)]'}`}
-                >
-                  <td className="px-4 py-2.5 text-[var(--text-muted)]">{row.rank}</td>
-                  <td className="px-4 py-2.5 font-medium text-[var(--text)]">{row.id}</td>
-                  <td className={`px-4 py-2.5 font-semibold ${row.rank <= 10 ? 'text-[var(--text)]' : 'text-[var(--text-muted)]'}`}>{(row.match_score).toFixed(3)}</td>
-                  <td className="px-4 py-2.5 text-[var(--text-muted)]">{(row.semantic).toFixed(3)}</td>
-                  <td className="px-4 py-2.5 text-[var(--text-muted)]">{(row.career).toFixed(3)}</td>
-                  <td className="px-4 py-2.5 text-[var(--text-muted)]">{(row.signal).toFixed(3)}</td>
-                  <td className={`px-4 py-2.5 ${row.penalty > 0 ? 'text-[var(--text)] font-semibold' : 'text-[var(--text-faint)]'}`}>
-                    {row.penalty > 0 ? `-${row.penalty.toFixed(2)}` : '0.00'}
-                  </td>
+      <div className="flex gap-6 min-h-0 flex-1">
+        {/* Table */}
+        <div className="flex-1 border border-[var(--border)] rounded-[var(--radius)] overflow-hidden flex flex-col min-h-0">
+          <div className="flex-1 overflow-auto">
+            <table className="w-full text-sm text-left whitespace-nowrap">
+              <thead>
+                <tr>
+                  {[
+                    { key: 'rank', label: 'Rank' },
+                    { key: 'id', label: 'Candidate ID' },
+                    { key: 'match_score', label: 'Match Score' },
+                    { key: 'semantic', label: 'Semantic' },
+                    { key: 'career', label: 'Career' },
+                    { key: 'behavioral', label: 'Signals' },
+                    { key: 'penalty', label: 'Penalty' },
+                  ].map(col => (
+                    <th
+                      key={col.key}
+                      className={th}
+                      onClick={() => requestSort(col.key)}
+                    >
+                      <span className="flex items-center gap-1">
+                        {col.label}
+                        <SortIcon colKey={col.key} />
+                      </span>
+                    </th>
+                  ))}
+                  <th className={th + ' cursor-default'}>Title</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[var(--divider)] bg-[var(--bg)]">
+                {sorted.map(c => (
+                  <tr
+                    key={c.id}
+                    onClick={() => setSelectedCandidate(c)}
+                    className={`cursor-pointer transition-colors ${
+                      selectedCandidate?.id === c.id
+                        ? 'bg-[var(--surface-offset)]'
+                        : 'hover:bg-[var(--surface-offset)]'
+                    }`}
+                  >
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">{c.rank}</td>
+                    <td className="px-4 py-3 font-mono text-xs font-medium">{c.id}</td>
+                    <td className="px-4 py-3 font-mono text-xs font-bold">{c.match_score.toFixed(4)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">{c.semantic.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">{c.career.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">{c.behavioral.toFixed(2)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-[var(--text-muted)]">
+                      {c.penalty > 0
+                        ? <span className="text-[var(--text)]">-{c.penalty.toFixed(2)}</span>
+                        : <span className="opacity-30">0.00</span>
+                      }
+                    </td>
+                    <td className="px-4 py-3 text-xs text-[var(--text-muted)] max-w-[200px] truncate">
+                      {c.profile?.current_title || c.profile?.headline || '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
-      </div>
-
-      {/* Drawer */}
-      <div className={`fixed top-0 right-0 h-full w-[460px] bg-[var(--surface)] border-l border-[var(--border)] z-50 transform transition-transform duration-200 ease-out shadow-2xl flex flex-col ${selectedCandidate ? 'translate-x-0' : 'translate-x-full'}`}>
-        
+        {/* Detail drawer */}
         {selectedCandidate && (
-          <>
-            <div className="px-6 py-5 border-b border-[var(--divider)] bg-[var(--bg)] flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-mono font-medium">{selectedCandidate.id}</span>
-                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">Evaluation Context</span>
+          <div className="w-[340px] shrink-0 border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--divider)] bg-[var(--surface-2)]">
+              <div>
+                <div className="font-mono text-sm font-semibold">{selectedCandidate.id}</div>
+                <div className="text-xs text-[var(--text-muted)]">Rank #{selectedCandidate.rank}</div>
               </div>
-              <button onClick={() => setSelectedCandidate(null)} className="p-1 hover:bg-[var(--surface-offset)] rounded transition-colors text-[var(--text-muted)]">
-                <X size={18} />
+              <button
+                onClick={() => setSelectedCandidate(null)}
+                className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
+              >
+                <X size={16} />
               </button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto flex flex-col p-6 gap-8 text-sm">
-              
+
+            <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
+              {/* Score breakdown */}
               <section className="flex flex-col gap-3">
-                <h3 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase border-b border-[var(--divider)] pb-2">Why Relevant</h3>
-                <div className="flex flex-col gap-2">
-                  <div className="text-3xl font-mono mb-1">{selectedCandidate.match_score.toFixed(3)}</div>
-                  <p className="text-[var(--text)] leading-relaxed">
-                    {selectedCandidate.match_score > 0.8 
-                      ? "Highly aligned. Semantic match confirms PyTorch/ML engineering capability, supported by stable career duration and fast responsiveness." 
-                      : (selectedCandidate.penalty > 0 ? "Relevance degraded due to suspicious anomalies in profile structure and missing behavioral signals." : "Average relevance. Lacks strong contextual overlap or defining behavioral signals.")}
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Score Breakdown</h3>
+                {[
+                  { label: 'Match Score', value: selectedCandidate.match_score, max: 30 },
+                  { label: 'Semantic Fit', value: selectedCandidate.semantic, max: 12 },
+                  { label: 'Career Relevance', value: selectedCandidate.career, max: 12 },
+                  { label: 'Behavioral Signals', value: selectedCandidate.behavioral, max: 9 },
+                ].map(s => (
+                  <div key={s.label} className="flex flex-col gap-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-[var(--text-muted)]">{s.label}</span>
+                      <span className="font-mono font-semibold">{s.value.toFixed(2)}</span>
+                    </div>
+                    <div className="h-1 bg-[var(--surface-offset)] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[var(--text)] rounded-full"
+                        style={{ width: `${Math.min(100, (s.value / s.max) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+                {selectedCandidate.penalty > 0 && (
+                  <div className="text-xs flex justify-between border-t border-[var(--divider)] pt-2">
+                    <span className="text-[var(--text-muted)]">Risk Penalty</span>
+                    <span className="font-mono">-{selectedCandidate.penalty.toFixed(2)}</span>
+                  </div>
+                )}
+              </section>
+
+              {/* Reasoning */}
+              {selectedCandidate.reasoning && (
+                <section className="flex flex-col gap-2">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">AI Reasoning</h3>
+                  <p className="text-xs text-[var(--text)] leading-relaxed border border-[var(--border)] rounded p-3 bg-[var(--bg)]">
+                    {selectedCandidate.reasoning}
                   </p>
-                </div>
-              </section>
+                </section>
+              )}
 
-              <section className="flex flex-col gap-3">
-                <h3 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase border-b border-[var(--divider)] pb-2">Career Evidence</h3>
-                <div className="flex flex-col gap-1.5 leading-relaxed text-[var(--text-muted)]">
-                  {selectedCandidate.career > 0.8 ? (
-                    <span>Candidate possesses deep, verified tenure (5+ years) in closely related ML infrastructure roles, confirming seniority.</span>
-                  ) : (
-                    <span>Career history is either too brief or scattered to establish absolute seniority in required domains.</span>
-                  )}
-                </div>
-              </section>
-
-              <section className="flex flex-col gap-3">
-                <h3 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase border-b border-[var(--divider)] pb-2">Skill Contextuality</h3>
-                <div className="flex flex-col gap-1.5 leading-relaxed text-[var(--text-muted)]">
-                  {selectedCandidate.semantic > 0.8 ? (
-                    <span>Strong semantic overlap with `PyTorch`, `Transformers`, and `LLM Inference`. Skills appear embedded in career descriptions rather than just isolated tags.</span>
-                  ) : (
-                    <span>Keyword overlap is moderate to low. Missing contextual evidence of model deployment in production.</span>
-                  )}
-                </div>
-              </section>
-
-              <section className="flex flex-col gap-3">
-                <h3 className="text-xs font-semibold tracking-wider text-[var(--text-muted)] uppercase border-b border-[var(--divider)] pb-2">Signal Integration & Risk</h3>
-                <div className="flex flex-col gap-3 leading-relaxed text-[var(--text-muted)]">
-                  {selectedCandidate.penalty > 0 ? (
-                    <div className="p-3 border border-[var(--text)] text-[var(--text)] font-medium text-xs rounded">
-                      <strong>Keyword Stuffer Check Failed:</strong> High proficiency claimed on skills with 0 months duration. Accompanied by poor behavioral metrics (0% response rate). Candidate heavily penalized.
+              {/* Profile */}
+              <section className="flex flex-col gap-2">
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Profile</h3>
+                <div className="flex flex-col gap-2 text-xs">
+                  {[
+                    { k: 'Title', v: selectedCandidate.profile?.current_title || selectedCandidate.profile?.headline },
+                    { k: 'Company', v: selectedCandidate.profile?.current_company },
+                    { k: 'Experience', v: selectedCandidate.profile?.years_of_experience ? `${selectedCandidate.profile.years_of_experience} years` : null },
+                    { k: 'Location', v: selectedCandidate.profile?.location },
+                  ].filter(item => item.v).map(item => (
+                    <div key={item.k} className="flex gap-2">
+                      <span className="text-[var(--text-muted)] w-16 shrink-0">{item.k}</span>
+                      <span className="text-[var(--text)]">{item.v}</span>
                     </div>
-                  ) : (
-                    <div className="text-sm">
-                      Candidate passed baseline credibility checks. Behavioral signals ({selectedCandidate.redrob_signals.response_rate} response rate, active {selectedCandidate.redrob_signals.last_active}) strengthen ranking confidence.
-                    </div>
-                  )}
+                  ))}
                 </div>
               </section>
 
+              {/* Top skills */}
+              {selectedCandidate.skills?.length > 0 && (
+                <section className="flex flex-col gap-2">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Skills</h3>
+                  <div className="flex flex-col gap-1.5">
+                    {selectedCandidate.skills.slice(0, 8).map((s, i) => (
+                      <div key={i} className="flex justify-between items-center text-xs">
+                        <span className="text-[var(--text)]">{s.name}</span>
+                        <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                          <span className="capitalize">{s.proficiency}</span>
+                          <span className="font-mono">{s.duration_months || 0}mo</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Signals */}
+              <section className="flex flex-col gap-2">
+                <h3 className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-muted)]">Behavioral Signals</h3>
+                <div className="flex flex-col gap-1.5 text-xs">
+                  {[
+                    { k: 'Open to Work', v: selectedCandidate.redrob_signals?.open_to_work_flag ? 'Yes' : 'No' },
+                    { k: 'Response Rate', v: selectedCandidate.redrob_signals?.recruiter_response_rate != null ? `${(selectedCandidate.redrob_signals.recruiter_response_rate * 100).toFixed(0)}%` : null },
+                    { k: 'Interview Rate', v: selectedCandidate.redrob_signals?.interview_completion_rate != null ? `${(selectedCandidate.redrob_signals.interview_completion_rate * 100).toFixed(0)}%` : null },
+                    { k: 'Notice Period', v: selectedCandidate.redrob_signals?.notice_period_days != null ? `${selectedCandidate.redrob_signals.notice_period_days} days` : null },
+                  ].filter(item => item.v != null).map(item => (
+                    <div key={item.k} className="flex justify-between">
+                      <span className="text-[var(--text-muted)]">{item.k}</span>
+                      <span className="font-mono text-[var(--text)]">{item.v}</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
-          </>
+          </div>
         )}
       </div>
-
     </div>
   );
 }
