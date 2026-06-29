@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { runRankingPipeline } from '../engine/ranker';
 
-export default function PipelineView({ apiKey, jdText, onProgress }) {
+export default function PipelineView({ jdText, onProgress }) {
   const ranOnce = useRef(false);
   const logsEndRef = useRef(null);
 
@@ -18,7 +18,7 @@ export default function PipelineView({ apiKey, jdText, onProgress }) {
     if (ranOnce.current) return;
     ranOnce.current = true;
 
-    runRankingPipeline(apiKey, jdText, (p) => {
+    runRankingPipeline(jdText, (p) => {
       if (p.pct !== undefined) setPct(p.pct);
       if (p.phase) setPhase(p.phase);
       if (p.message) addLog(p.message);

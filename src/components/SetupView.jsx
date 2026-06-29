@@ -1,19 +1,16 @@
 import React, { useState } from 'react';
-import { ExternalLink, Key, FileText, Zap } from 'lucide-react';
+import { FileText, Zap, Server, CheckCircle2, Cpu } from 'lucide-react';
 
-export default function SetupView({ apiKey: initKey, jdText: initJD, onStart }) {
-  const [apiKey, setApiKey] = useState(initKey || '');
+export default function SetupView({ jdText: initJD, onStart }) {
   const [jdText, setJdText] = useState(initJD || '');
-  const [showKey, setShowKey] = useState(false);
   const [error, setError] = useState('');
 
-  const canRun = apiKey.trim().length > 10 && jdText.trim().length > 50;
+  const canRun = jdText.trim().length > 50;
 
   const handleSubmit = () => {
-    if (!apiKey.trim()) return setError('Please enter your Gemini API key.');
     if (!jdText.trim() || jdText.trim().length < 50) return setError('Please paste a job description (at least 50 characters).');
     setError('');
-    onStart(apiKey.trim(), jdText.trim());
+    onStart(jdText.trim());
   };
 
   return (
@@ -53,41 +50,38 @@ export default function SetupView({ apiKey: initKey, jdText: initJD, onStart }) 
 
       {/* Configuration */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-        {/* API Key */}
+        
+        {/* System Readiness */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <Key size={14} className="text-[var(--text-muted)]" />
-            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">Gemini API Key</h2>
+            <Server size={14} className="text-[var(--text-muted)]" />
+            <h2 className="text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">System Readiness</h2>
           </div>
-          <div className="flex flex-col gap-3">
-            <div className="relative">
-              <input
-                type={showKey ? 'text' : 'password'}
-                value={apiKey}
-                onChange={e => setApiKey(e.target.value)}
-                placeholder="AIza..."
-                className="w-full px-3 py-2.5 text-sm border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)] focus:outline-none focus:border-[var(--text-muted)] transition-colors font-mono pr-16"
-              />
-              <button
-                onClick={() => setShowKey(v => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors"
-              >
-                {showKey ? 'hide' : 'show'}
-              </button>
+          <div className="border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)] p-5 flex flex-col gap-4 text-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2 h-2 rounded-full bg-[var(--text)] animate-pulse" />
+                <span className="font-medium">Engine Online</span>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] font-mono">Status: Active</span>
             </div>
-            <div className="flex flex-col gap-1.5 text-xs text-[var(--text-muted)]">
-              <p>Free tier available — no credit card needed.</p>
-              <a
-                href="https://aistudio.google.com/app/apikey"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-[var(--text)] hover:underline"
-              >
-                Get your free API key at Google AI Studio
-                <ExternalLink size={11} />
-              </a>
-              <p className="text-[var(--text-faint)]">Key is stored in sessionStorage only — never sent anywhere except Gemini.</p>
+            
+            <div className="grid grid-cols-1 gap-3 pt-3 border-t border-[var(--divider)]">
+              <div className="flex items-center gap-3 text-xs">
+                <CheckCircle2 size={16} className="text-[var(--text)] shrink-0" />
+                <div className="flex flex-col">
+                  <span className="font-medium text-[var(--text)]">Gemini API Connected</span>
+                  <span className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">Key securely loaded via environment (.env)</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3 text-xs">
+                <Cpu size={16} className="text-[var(--text)] shrink-0" />
+                <div className="flex flex-col">
+                  <span className="font-medium text-[var(--text)]">Model Ready</span>
+                  <span className="text-[10px] text-[var(--text-muted)] leading-tight mt-0.5">gemini-1.5-flash with JSON mode streaming</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

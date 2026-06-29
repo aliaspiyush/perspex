@@ -14,7 +14,6 @@ export default function App() {
   const [stage, setStage] = useState('setup');
 
   // persisted config
-  const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('perspex_key') || '');
   const [jdText, setJdText] = useState(() => sessionStorage.getItem('perspex_jd') || DEFAULT_JD);
 
   // pipeline state
@@ -25,10 +24,8 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  const handleStart = (key, jd) => {
-    sessionStorage.setItem('perspex_key', key);
+  const handleStart = (jd) => {
     sessionStorage.setItem('perspex_jd', jd);
-    setApiKey(key);
     setJdText(jd);
     setStage('running');
   };
@@ -93,8 +90,8 @@ export default function App() {
 
       {/* Content */}
       <main className="flex-1">
-        {stage === 'setup'   && <SetupView    apiKey={apiKey} jdText={jdText} onStart={handleStart} />}
-        {stage === 'running' && <PipelineView apiKey={apiKey} jdText={jdText} onProgress={handleProgress} />}
+        {stage === 'setup'   && <SetupView    jdText={jdText} onStart={handleStart} />}
+        {stage === 'running' && <PipelineView jdText={jdText} onProgress={handleProgress} />}
         {stage === 'results' && <ResultsView  result={finalResult} onReset={handleReset} />}
       </main>
     </div>

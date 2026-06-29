@@ -1,27 +1,23 @@
-// Ranking pipeline orchestrator
+// Ranking pipeline orchestrator — API key is handled internally via env
 import { parseJobDescription, scoreCandidateBatch, generateRankingSummary } from './gemini.js';
 
-const BATCH_SIZE = 5; // candidates per Gemini call
+const BATCH_SIZE = 5;
 
-// Load candidates from the public folder (sample = 100 candidates)
 export async function loadCandidates() {
   const res = await fetch('/sample_candidates.json');
   if (!res.ok) throw new Error('Could not load sample_candidates.json');
   return res.json();
 }
 
-// Main pipeline — streams progress via callbacks
-export async function runRankingPipeline(apiKey, jdText, onProgress) {
+export async function runRankingPipeline(jdText, onProgress) {
   // STEP 1: Parse JD
   onProgress({ phase: 'parsing_jd', message: 'Gemini is deeply analyzing the job description…', pct: 5 });
-  const parsedJD = await parseJobDescription(apiKey, jdText);
-
+  const parsedJD = await parseJobDescription(jdText);
   onProgress({ phase: 'jd_parsed', message: 'Job description parsed into ranking schema.', pct: 10, parsedJD });
 
   // STEP 2: Load candidates
   onProgress({ phase: 'loading_candidates', message: 'Loading candidate pool…', pct: 12 });
   const allCandidates = await loadCandidates();
-
   onProgress({
     phase: 'candidates_loaded',
     message: `${allCandidates.length} candidates loaded. Starting AI evaluation…`,
@@ -48,21 +44,19 @@ export async function runRankingPipeline(apiKey, jdText, onProgress) {
     });
 
     try {
-      const batchScores = await scoreCandidateBatch(apiKey, parsedJD, batch);
-      // Enrich scores with full candidate data
+      const batchScores = await scoreCandidateBatch(parsedJD, batch);
       const enriched = batchScores.map((score, idx) => ({
         ...score,
         candidate_id: score.candidate_id || batch[idx]?.candidate_id,
-        profile: batch[idx]?.profile || {},
-        skills: batch[idx]?.skills || [],
-        career_history: batch[idx]?.career_history || [],
-        education: batch[idx]?.education || [],
-        redrob_signals: batch[idx]?.redrob_signals || {},
-        certifications: batch[idx]?.certifications || [],
+        profile:       batch[idx]?.profile        || {},
+        skills:        batch[idx]?.skills         || [],
+        career_history:batch[idx]?.career_history || [],
+        education:     batch[idx]?.education      || [],
+        redrob_signals:batch[idx]?.redrob_signals || {},
+        certifications:batch[idx]?.certifications || [],
       }));
       allScores.push(...enriched);
 
-      // Emit live partial results — already sorted so far
       const sortedSoFar = [...allScores].sort((a, b) => b.overall_score - a.overall_score);
       onProgress({
         phase: 'partial_results',
@@ -72,27 +66,22 @@ export async function runRankingPipeline(apiKey, jdText, onProgress) {
       });
     } catch (err) {
       console.error(`Batch ${batchNum} failed:`, err);
-      // Continue with remaining batches
     }
   }
 
-  // STEP 4: Final sort + rank
+  // STEP 4: Final sort
   onProgress({ phase: 'finalizing', message: 'Finalizing rankings…', pct: 92 });
-
   const finalRanked = allScores
-    .sort((a, b) => {
-      if (b.overall_score !== a.overall_score) return b.overall_score - a.overall_score;
-      return a.candidate_id.localeCompare(b.candidate_id);
-    })
+    .sort((a, b) => b.overall_score - a.overall_score)
     .map((c, i) => ({ ...c, rank: i + 1 }));
 
-  // STEP 5: Executive summary
+  // STEP 5: Summary
   onProgress({ phase: 'summary', message: 'Generating executive summary…', pct: 96 });
   let summary = '';
   try {
-    summary = await generateRankingSummary(apiKey, parsedJD, finalRanked);
+    summary = await generateRankingSummary(parsedJD, finalRanked);
   } catch {
-    summary = `AI ranking complete. ${finalRanked.length} candidates evaluated. Top candidate scored ${finalRanked[0]?.overall_score}/100.`;
+    summary = `AI ranking complete. ${finalRanked.length} candidates evaluated. Top score: ${finalRanked[0]?.overall_score}/100.`;
   }
 
   onProgress({
