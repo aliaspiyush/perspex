@@ -1,141 +1,140 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, File, Settings } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 import './styles/tokens.css';
-import SetupView    from './components/SetupView';
+import UploadView from './components/UploadView';
 import PipelineView from './components/PipelineView';
-import ResultsView  from './components/ResultsView';
-import PythonTerminal from './components/PythonTerminal';
-import SidebarConfig from './components/SidebarConfig';
+import ResultsView from './components/ResultsView';
+import AboutView from './components/AboutView';
 
 export default function App() {
   const [theme, setTheme] = useState(() =>
     typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   );
 
-  // app stage: 'setup' | 'running' | 'results'
-  const [stage, setStage] = useState('setup');
+  const [route, setRoute] = useState(() => {
+    const hash = window.location.hash.replace('#', '');
+    return ['upload', 'results', 'about'].includes(hash) ? hash : 'upload';
+  });
 
-  // persisted config
-  const [jdText, setJdText] = useState(() => sessionStorage.getItem('perspex_jd') || DEFAULT_JD);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // pipeline state
-  const [progress, setProgress]     = useState(null);
+  // App functional state
+  const [jdText, setJdText] = useState(() => sessionStorage.getItem('perspex_jd') || '');
+  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+  const [progress, setProgress] = useState(null);
   const [finalResult, setFinalResult] = useState(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (['upload', 'results', 'about'].includes(hash)) {
+        setRoute(hash);
+      } else {
+        setRoute('upload');
+      }
+      setIsMobileMenuOpen(false);
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const handleNav = (r) => {
+    window.location.hash = r;
+  };
+
   const handleStart = (jd) => {
     sessionStorage.setItem('perspex_jd', jd);
     setJdText(jd);
-    setStage('running');
+    setIsPipelineRunning(true);
   };
 
   const handleProgress = (p) => {
     setProgress(p);
     if (p.phase === 'complete') {
       setFinalResult(p);
-      setStage('results');
+      setIsPipelineRunning(false);
+      handleNav('results');
     }
   };
 
-  const handleReset = () => {
-    setStage('setup');
-    setProgress(null);
-    setFinalResult(null);
-  };
-
-  const isResults = stage === 'results';
+  const NavItems = () => (
+    <>
+      {['upload', 'results', 'about'].map((item) => (
+        <button
+          key={item}
+          onClick={() => handleNav(item)}
+          className={`capitalize ${route === item ? 'font-[600] border-b-2 border-[var(--text-primary)]' : 'font-[400] text-[var(--text-muted)] border-b-2 border-transparent hover:text-[var(--text-primary)]'} pb-1 transition-colors`}
+        >
+          {item}
+        </button>
+      ))}
+    </>
+  );
 
   return (
-    <div className="h-full flex flex-col bg-[var(--bg)] text-[var(--text)] font-[family-name:var(--font-body)]">
-
-      {/* HEADER ROW — 48px tall, full width */}
-      <header className="shrink-0 h-12 border-b border-[var(--border)] flex items-center justify-between px-6 bg-[var(--bg)] z-30">
-        <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-widest font-semibold">
-          <span className="text-[var(--text-h)]">Perspex</span>
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] font-[family-name:var(--font-body)]">
+      
+      {/* HEADER */}
+      <header className="sticky top-0 z-50 h-[48px] w-full bg-[var(--bg)] border-b border-[var(--border)] px-4 md:px-6 flex items-center justify-between">
+        {/* Left Side: Logo */}
+        <div className="flex items-center">
+          <span className="font-semibold tracking-tight text-[var(--text-primary)]" style={{ fontSize: '18px' }}>Perspex</span>
         </div>
 
-        <div className="flex items-center gap-4 text-xs">
-          {['setup', 'running', 'results'].map((s, i) => (
-            <React.Fragment key={s}>
-              <span className={stage === s ? 'text-[var(--text-h)] font-bold underline underline-offset-4' : 'text-[var(--text-muted)]'}>
-                {i + 1}. {s.charAt(0).toUpperCase() + s.slice(1)}
-              </span>
-              {i < 2 && <span className="text-[var(--text-muted)]">→</span>}
-            </React.Fragment>
-          ))}
-        </div>
-
-        <div className="flex items-center gap-3">
+        {/* Right Side Desktop */}
+        <div className="hidden md:flex items-center gap-6 text-[14px]">
+          <nav className="flex items-center gap-6 h-full pt-1">
+            <NavItems />
+          </nav>
+          
           <button
             onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--text-h)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded text-[var(--text-primary)] transition-colors"
           >
-            {theme === 'light' ? <Moon size={14}/> : <Sun size={14}/>}
+            {theme === 'light' ? <Moon size={18} strokeWidth={1.5} /> : <Sun size={18} strokeWidth={1.5} />}
+          </button>
+        </div>
+
+        {/* Right Side Mobile */}
+        <div className="flex md:hidden items-center gap-2">
+          <button
+            onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
+            className="flex items-center justify-center w-8 h-8 rounded text-[var(--text-primary)]"
+          >
+            {theme === 'light' ? <Moon size={18} strokeWidth={1.5} /> : <Sun size={18} strokeWidth={1.5} />}
+          </button>
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex items-center justify-center w-8 h-8 rounded text-[var(--text-primary)]"
+          >
+            {isMobileMenuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
           </button>
         </div>
       </header>
 
-      {/* MAIN GRID */}
-      <main 
-        className="flex-1 min-h-0 grid" 
-        style={{ 
-          gridTemplateColumns: isResults ? '64px 1fr' : '280px 1fr 280px' 
-        }}
-      >
-        {/* LEFT COLUMN */}
-        {isResults ? (
-          <div className="h-full bg-[var(--surface-offset)] border-r border-[var(--border)] flex flex-col items-center py-6 gap-6">
-            <button className="p-2 text-[var(--text-muted)] hover:text-[var(--text-h)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] rounded-[var(--radius)] transition-colors">
-              <File size={16} />
-            </button>
-            <button className="p-2 text-[var(--text-muted)] hover:text-[var(--text-h)] hover:bg-[var(--bg)] border border-transparent hover:border-[var(--border)] rounded-[var(--radius)] transition-colors">
-              <Settings size={16} />
-            </button>
-          </div>
-        ) : (
-          <PythonTerminal />
-        )}
-
-        {/* CENTER COLUMN */}
-        <div className="h-full overflow-y-auto flex flex-col bg-[var(--bg)] relative">
-          {stage === 'setup'   && <SetupView    jdText={jdText} onStart={handleStart} />}
-          {stage === 'running' && <PipelineView jdText={jdText} onProgress={handleProgress} />}
-          {stage === 'results' && <ResultsView  result={finalResult} onReset={handleReset} />}
+      {/* Mobile Menu Dropdown */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed top-[48px] left-0 right-0 bg-[var(--bg)] border-b border-[var(--border)] z-40 flex flex-col p-4 gap-4 text-[14px] shadow-sm">
+          <NavItems />
         </div>
+      )}
 
-        {/* RIGHT COLUMN (Hidden in Results) */}
-        {!isResults && (
-          <SidebarConfig />
+      {/* MAIN CONTENT */}
+      <main className="flex-1 flex flex-col relative w-full">
+        {isPipelineRunning ? (
+          <PipelineView jdText={jdText} onProgress={handleProgress} />
+        ) : (
+          <>
+            {route === 'upload' && <UploadView jdText={jdText} onRun={handleStart} />}
+            {route === 'results' && <ResultsView result={finalResult} onReset={() => handleNav('upload')} />}
+            {route === 'about' && <AboutView />}
+          </>
         )}
       </main>
     </div>
   );
 }
-
-const DEFAULT_JD = `Senior AI/ML Engineer — Intelligent Systems
-
-We are looking for a senior AI/ML engineer to join our founding team and build the next generation of intelligent candidate discovery systems.
-
-Responsibilities:
-- Design and train transformer-based architectures for NLP and semantic understanding tasks
-- Build and optimize LLM inference pipelines for production scale
-- Fine-tune large language models (LLMs) using LoRA, QLoRA, and RLHF techniques
-- Develop vector search and embedding infrastructure (FAISS, Milvus, Pinecone)
-- Build MLOps pipelines for continuous model training and deployment on Kubernetes
-- Collaborate with the founding team on system architecture and product direction
-
-Requirements:
-- 5+ years of hands-on experience in Machine Learning or AI Engineering
-- Deep expertise in PyTorch, Transformers, and HuggingFace ecosystem
-- Production experience deploying ML models at scale
-- Strong understanding of NLP, semantic search, and information retrieval
-- Experience with cloud infrastructure (AWS, GCP, or Azure)
-- Excellent Python skills; familiarity with Rust or Go is a plus
-
-What we value:
-- Open source contributions and public work
-- Fast learner with high agency and strong communication
-- Experience in startup or fast-paced environments`;

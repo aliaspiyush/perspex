@@ -28,171 +28,184 @@ export default function UploadView({ onRun }) {
     if (file) setPoolFile(file);
   };
 
+  const handleRun = () => {
+    onRun(jdText || 'Job description loaded from file.');
+  };
+
   return (
-    <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-16 items-start">
+    <div className="w-full max-w-[1200px] mx-auto px-6 pt-[40px] pb-16 flex flex-col md:flex-row gap-[48px] items-start">
       
-      {/* LEFT PANEL */}
-      <div className="w-full md:w-[42%] flex flex-col gap-10">
+      {/* LEFT COLUMN - 420px fixed width on desktop */}
+      <div className="w-full md:w-[420px] shrink-0 flex flex-col gap-8">
         
         {/* JD Section */}
-        <section className="flex flex-col gap-3">
-          <label className="text-xs font-semibold tracking-wider text-[var(--text-muted)]">JOB DESCRIPTION</label>
+        <section className="flex flex-col" style={{ gap: '24px' }}>
+          <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Job Description</label>
           
           <textarea 
-            className="w-full h-32 p-4 bg-[var(--surface)] border border-[var(--border)] rounded-[var(--radius)] text-sm resize-none focus:outline-none focus:border-[var(--text-muted)] transition-colors placeholder:text-[var(--text-faint)]"
+            className="w-full h-32 p-3 bg-[var(--surface)] border border-[var(--border)] text-[14px] resize-none focus:outline-none focus:border-[var(--text-muted)] transition-colors placeholder:text-[var(--text-faint)] text-[var(--text-primary)] rounded-none"
             placeholder="Paste the job description here..."
             value={jdText}
             onChange={(e) => setJdText(e.target.value)}
           />
           
-          <div className="flex items-center gap-4 py-2">
-            <div className="flex-1 h-px bg-[var(--divider)]"></div>
-            <span className="text-[10px] uppercase tracking-widest text-[var(--text-faint)]">or</span>
-            <div className="flex-1 h-px bg-[var(--divider)]"></div>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 h-px bg-[var(--border)] opacity-50"></div>
+            <span className="text-[11px] uppercase tracking-widest text-[var(--text-faint)]">or</span>
+            <div className="flex-1 h-px bg-[var(--border)] opacity-50"></div>
           </div>
           
           <div 
             onDragOver={(e) => e.preventDefault()} 
             onDrop={handleJdDrop}
-            className="relative flex flex-col items-center justify-center p-6 border border-dashed border-[var(--border)] bg-[var(--surface)] rounded-[var(--radius)] hover:bg-[var(--surface-2)] hover:border-[var(--text-muted)] transition-colors group cursor-pointer"
+            className="relative flex flex-col items-center justify-center h-[80px] border border-dashed border-[var(--border)] bg-[var(--surface)] hover:border-[rgba(0,0,0,0.25)] dark:hover:border-[rgba(255,255,255,0.25)] transition-colors group cursor-pointer"
           >
             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setJdFile(e.target.files[0])} accept=".txt,.docx" />
             {jdFile ? (
-              <div className="flex items-center gap-3 text-sm">
+              <div className="flex items-center gap-3 text-[14px]">
                 <FileText size={16} className="text-[var(--text-muted)]" />
-                <span className="font-medium truncate max-w-[200px]">{jdFile.name}</span>
-                <span className="text-[var(--text-faint)] text-xs">{(jdFile.size / 1024).toFixed(1)} KB</span>
+                <span className="font-medium truncate max-w-[200px] text-[var(--text-primary)]">{jdFile.name}</span>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
-                <UploadCloud size={20} className="group-hover:text-[var(--text)] transition-colors" />
-                <span className="text-sm">Upload .docx or .txt</span>
+              <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                <UploadCloud size={16} className="group-hover:text-[var(--text-primary)] transition-colors" />
+                <span className="text-[14px]">Upload .docx or .txt</span>
               </div>
             )}
           </div>
         </section>
 
         {/* Candidate Pool Section */}
-        <section className="flex flex-col gap-3">
-          <label className="text-xs font-semibold tracking-wider text-[var(--text-muted)]">CANDIDATE POOL</label>
+        <section className="flex flex-col" style={{ gap: '24px' }}>
+          <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Candidate Pool</label>
           <div 
             onDragOver={(e) => e.preventDefault()} 
             onDrop={handlePoolDrop}
-            className="relative flex flex-col items-center justify-center p-8 border border-dashed border-[var(--border)] bg-[var(--surface)] rounded-[var(--radius)] hover:bg-[var(--surface-2)] hover:border-[var(--text-muted)] transition-colors group cursor-pointer"
+            className="relative flex flex-col items-center justify-center h-[80px] border border-dashed border-[var(--border)] bg-[var(--surface)] hover:border-[rgba(0,0,0,0.25)] dark:hover:border-[rgba(255,255,255,0.25)] transition-colors group cursor-pointer"
           >
             <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setPoolFile(e.target.files[0])} accept=".jsonl,.csv" />
             {poolFile ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2 text-sm font-medium">
-                  <CheckCircle2 size={16} className="text-[var(--text)]" />
-                  {poolFile.name}
-                </div>
-                <div className="text-[var(--text-muted)] text-xs">
-                  {(poolFile.size / (1024 * 1024)).toFixed(2)} MB • ~{Math.floor(poolFile.size / 500)} records estimated
-                </div>
+              <div className="flex items-center gap-2 text-[14px] text-[var(--text-primary)] font-medium">
+                <CheckCircle2 size={16} />
+                <span>{poolFile.name}</span>
               </div>
             ) : (
-              <div className="flex flex-col items-center gap-2 text-[var(--text-muted)]">
-                <UploadCloud size={20} className="group-hover:text-[var(--text)] transition-colors" />
-                <span className="text-sm">Upload candidates.jsonl</span>
+              <div className="flex items-center gap-2 text-[var(--text-muted)]">
+                <UploadCloud size={16} className="group-hover:text-[var(--text-primary)] transition-colors" />
+                <span className="text-[14px]">Upload candidates.jsonl</span>
               </div>
             )}
           </div>
         </section>
 
         {/* Ranking Config */}
-        <section className="flex flex-col gap-3">
-          <details className="group border border-[var(--border)] rounded-[var(--radius)] bg-[var(--surface)] overflow-hidden">
-            <summary className="p-4 text-xs font-semibold tracking-wider text-[var(--text-muted)] cursor-pointer select-none flex items-center justify-between">
-              RANKING CONFIG
-              <span className="text-[var(--text-faint)] group-open:hidden">Show</span>
-              <span className="text-[var(--text-faint)] hidden group-open:block">Hide</span>
-            </summary>
-            
-            <div className="p-4 pt-0 flex flex-col gap-5 border-t border-[var(--divider)] mt-2">
-              
-              {Object.entries(weights).map(([key, value]) => (
-                <div key={key} className="flex flex-col gap-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="capitalize">{key.replace('_', ' ')} Match</span>
-                    <span className="font-mono text-[var(--text-muted)]">{value}</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="100" 
-                    value={value}
-                    onChange={(e) => setWeights({...weights, [key]: parseInt(e.target.value)})}
-                    className="w-full h-1 bg-[var(--border)] rounded-full appearance-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--text)] [&::-webkit-slider-thumb]:rounded-full"
-                  />
+        <section className="flex flex-col" style={{ gap: '24px' }}>
+          <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Ranking Configuration</label>
+          
+          <div className="flex flex-col gap-5 p-4 border border-[var(--border)] bg-[var(--surface)]">
+            {Object.entries(weights).map(([key, value]) => (
+              <div key={key} className="flex flex-col gap-2">
+                <div className="flex justify-between text-[14px]">
+                  <span className="capitalize text-[var(--text-primary)]">{key}</span>
+                  <span className="tabular-nums text-[var(--text-primary)]">{value}</span>
                 </div>
-              ))}
-
-              <div className="mt-4 pt-4 border-t border-[var(--divider)] flex justify-between items-center">
-                <span className="text-sm text-[var(--text-muted)]">Total Weight</span>
-                <span className={`font-mono text-sm font-medium px-2 py-1 border rounded ${sum === 100 ? 'border-[var(--text)] text-[var(--text)]' : 'border-[var(--text-muted)] text-[var(--text-muted)]'}`}>
-                  {sum} / 100
-                </span>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={value}
+                  onChange={(e) => setWeights({...weights, [key]: parseInt(e.target.value)})}
+                  className="w-full accent-[var(--text-primary)] opacity-80 hover:opacity-100"
+                />
               </div>
+            ))}
+
+            <div className="pt-4 border-t border-[var(--border)]">
+              <span className={`text-[14px] ${sum === 100 ? 'font-[600] text-[var(--text-primary)]' : 'font-[400] text-[var(--text-muted)]'}`}>
+                Total: {sum} / 100
+              </span>
             </div>
-          </details>
+          </div>
         </section>
 
         {/* Primary Action */}
         <button 
           disabled={!isValid}
-          onClick={onRun}
-          className={`w-full py-3.5 px-4 rounded-[var(--radius)] font-medium transition-all ${
+          onClick={handleRun}
+          className={`w-full h-[40px] flex items-center justify-center text-[14px] font-[500] transition-all rounded-none ${
             isValid 
-              ? 'bg-[var(--primary)] text-[var(--primary-fg)] hover:bg-[var(--primary-hover)]' 
-              : 'bg-[var(--surface-offset)] text-[var(--text-faint)] cursor-not-allowed border border-[var(--border)]'
+              ? 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] hover:opacity-90' 
+              : 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] opacity-35 cursor-not-allowed'
           }`}
         >
-          Run Perspex
+          Run Pipeline
         </button>
 
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="w-full md:w-[58%] flex flex-col gap-10 mt-8 md:mt-0">
+      {/* RIGHT COLUMN - Pipeline Diagram */}
+      <div className="hidden md:flex flex-1 flex-col mt-2">
+        <h2 className="text-[18px] font-[600] text-[var(--text-primary)] mb-6 font-[family-name:var(--font-display)]">Pipeline Architecture</h2>
         
-        <div className="flex flex-col gap-8">
-          <h2 className="text-lg font-medium">Pipeline Architecture</h2>
-          
-          <div className="flex flex-col gap-4 relative before:content-[''] before:absolute before:left-3.5 before:top-4 before:bottom-4 before:w-px before:bg-[var(--border)]">
-            {[
-              { title: 'JD Parser', desc: 'Extracts core competencies and implicit requirements.' },
-              { title: 'Honeypot Filter', desc: 'Identifies and removes artificially optimized profiles.' },
-              { title: 'FAISS Search', desc: 'Performs high-dimensional semantic similarity retrieval.' },
-              { title: 'Signal Scorer', desc: 'Evaluates behavioral and historical trajectory markers.' },
-              { title: 'Ranked Output', desc: 'Consolidates deterministic scores into a strict ranking.' }
-            ].map((stage, i) => (
-              <div key={i} className="flex gap-4 relative z-10">
-                <div className="w-7 h-7 shrink-0 rounded-full bg-[var(--bg)] border border-[var(--text)] flex items-center justify-center text-xs font-mono">
-                  {i + 1}
-                </div>
-                <div className="flex flex-col gap-0.5 pt-1">
-                  <span className="font-medium text-sm">{stage.title}</span>
-                  <span className="text-sm text-[var(--text-muted)]">{stage.desc}</span>
-                </div>
+        <div className="flex flex-col">
+          {[
+            { title: 'JD Parser', desc: 'Extracts core competencies and implicit requirements.' },
+            { title: 'Honeypot Filter', desc: 'Identifies and removes artificially optimized profiles.' },
+            { title: 'FAISS Search', desc: 'Performs high-dimensional semantic similarity retrieval.' },
+            { title: 'Signal Scorer', desc: 'Evaluates behavioral and historical trajectory markers.' },
+            { title: 'Ranked Output', desc: 'Consolidates deterministic scores into a strict ranking.' }
+          ].map((stage, i) => (
+            <div key={i} className="flex gap-4 py-4 border-b border-[var(--border)] items-start">
+              <div className="text-[12px] text-[var(--text-faint)] w-4 pt-0.5">
+                {i + 1}
               </div>
-            ))}
-          </div>
+              <div className="flex flex-col gap-1">
+                <span className="font-[600] text-[14px] text-[var(--text-primary)]">{stage.title}</span>
+                <span className="text-[13px] text-[var(--text-muted)]">{stage.desc}</span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="flex gap-3 flex-wrap pt-6 border-t border-[var(--divider)]">
-          <div className="px-3 py-1.5 border border-[var(--border)] rounded-[var(--radius)] text-xs text-[var(--text-muted)] font-mono">
-            100K candidates
+        <div className="flex items-center gap-4 mt-8 pt-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-[16px] font-[600] text-[var(--text-primary)]">100,000</span>
+            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Candidates</span>
           </div>
-          <div className="px-3 py-1.5 border border-[var(--border)] rounded-[var(--radius)] text-xs text-[var(--text-muted)] font-mono">
-            23 signals
+          <div className="h-8 w-px bg-[var(--border)]"></div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[16px] font-[600] text-[var(--text-primary)]">23</span>
+            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Behavioral Signals</span>
           </div>
-          <div className="px-3 py-1.5 border border-[var(--border)] rounded-[var(--radius)] text-xs text-[var(--text-muted)] font-mono">
-            ~41s runtime
+          <div className="h-8 w-px bg-[var(--border)]"></div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[16px] font-[600] text-[var(--text-primary)]">~41s</span>
+            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Runtime</span>
           </div>
         </div>
-
       </div>
+      
+      {/* Mobile Right Column equivalent inside details */}
+      <details className="md:hidden w-full border border-[var(--border)] bg-[var(--surface)] mt-8">
+        <summary className="p-4 font-[600] text-[14px] text-[var(--text-primary)] cursor-pointer">Pipeline Architecture</summary>
+        <div className="p-4 pt-0 flex flex-col border-t border-[var(--border)]">
+          {[
+            { title: 'JD Parser', desc: 'Extracts core competencies.' },
+            { title: 'Honeypot Filter', desc: 'Removes artificial profiles.' },
+            { title: 'FAISS Search', desc: 'Semantic similarity retrieval.' },
+            { title: 'Signal Scorer', desc: 'Evaluates behavioral markers.' },
+            { title: 'Ranked Output', desc: 'Consolidates strict ranking.' }
+          ].map((stage, i) => (
+            <div key={i} className="flex gap-4 py-3 border-b border-[var(--border)] last:border-0 items-start">
+              <div className="text-[12px] text-[var(--text-faint)] w-3 pt-0.5">{i + 1}</div>
+              <div className="flex flex-col">
+                <span className="font-[600] text-[14px] text-[var(--text-primary)]">{stage.title}</span>
+                <span className="text-[13px] text-[var(--text-muted)]">{stage.desc}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </details>
 
     </div>
   );

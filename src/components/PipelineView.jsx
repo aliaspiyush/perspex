@@ -5,14 +5,13 @@ export default function PipelineView({ jdText, onProgress }) {
   const ranOnce = useRef(false);
   
   const [activeStage, setActiveStage] = useState(1);
-  const [logs, setLogs] = useState({}); // stage index -> log message
+  const [logs, setLogs] = useState({});
 
   useEffect(() => {
     if (ranOnce.current) return;
     ranOnce.current = true;
 
     runRankingPipeline(jdText, (p) => {
-      // Map pipeline phase to our 5 visual stages
       let stage = 1;
       let logMsg = p.message || '';
       
@@ -20,7 +19,7 @@ export default function PipelineView({ jdText, onProgress }) {
         case 'parsing_jd':
           stage = 1; break;
         case 'jd_parsed':
-          stage = 2; logMsg = `JD parsed · ${(p.parsedJD?.role_title || '').substring(0,20)} · ${p.parsedJD?.semantic_clusters?.length || 0} clusters`; break;
+          stage = 2; logMsg = `JD parsed · ${(p.parsedJD?.role_title || '').substring(0,20)}`; break;
         case 'loading_candidates':
           stage = 2; logMsg = 'Loading pool and applying heuristic gates...'; break;
         case 'candidates_loaded':
@@ -30,11 +29,11 @@ export default function PipelineView({ jdText, onProgress }) {
         case 'partial_results':
           stage = 4; logMsg = `Scoring... ${p.scored} / ${p.total} candidates processed`; break;
         case 'finalizing':
-          stage = 5; logMsg = 'Sorting candidates by multidimensional distance...'; break;
+          stage = 5; logMsg = 'Sorting candidates...'; break;
         case 'summary':
-          stage = 5; logMsg = 'Generating executive summary for top candidates...'; break;
+          stage = 5; logMsg = 'Generating executive summary...'; break;
         case 'complete':
-          stage = 6; logMsg = 'Pipeline complete. Transitioning to results...'; break;
+          stage = 6; logMsg = 'Pipeline complete. Transitioning...'; break;
         default:
           stage = 1;
       }
@@ -58,45 +57,34 @@ export default function PipelineView({ jdText, onProgress }) {
   ];
 
   return (
-    <div className="flex flex-col p-8 max-w-3xl mx-auto w-full gap-8 mt-12">
-      <div className="flex flex-col gap-2 border-b border-[var(--border)] pb-6">
-        <h1 className="text-3xl font-[family-name:var(--font-display)] text-[var(--text-h)]">Ranking in Progress</h1>
-        <p className="text-[14px] text-[var(--text-muted)] font-mono uppercase tracking-widest">~41s estimated</p>
-      </div>
-
-      <div className="flex flex-col gap-4">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-48px)] bg-[var(--bg)] p-8">
+      <div className="w-full max-w-[320px] flex flex-col gap-6">
         {stages.map(s => {
           const isCompleted = activeStage > s.n;
           const isActive = activeStage === s.n;
           const isPending = activeStage < s.n;
           
-          let icon = '[○]';
-          if (isCompleted) icon = '[✓]';
-          if (isActive) icon = '[●]';
-
           return (
-            <div key={s.n} className="flex flex-col gap-2">
-              <div 
-                className={`border border-[var(--border)] px-4 py-3 flex items-center gap-4 font-mono text-[13px] ${
-                  isActive ? 'bg-[var(--surface-offset)] text-[var(--text-h)] font-bold' :
-                  isCompleted ? 'bg-[var(--surface)] text-[var(--text-h)]' :
-                  'bg-[var(--surface)] text-[var(--text-faint)]'
-                }`}
-              >
-                <span className={isActive ? 'animate-pulse' : ''}>{icon}</span>
-                <span>{s.n} / 5</span>
-                <span className="uppercase tracking-wide">{s.label}</span>
+            <div 
+              key={s.n} 
+              className={`flex flex-col gap-1 transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-35'}`}
+            >
+              <div className={`text-[15px] ${isActive ? 'font-[600]' : 'font-[400]'} text-[var(--text-primary)] flex gap-3`}>
+                <span className="w-4 tabular-nums">{s.n}.</span>
+                <span>{s.label}</span>
               </div>
-              
-              {/* Log Message beneath */}
-              {(isActive || isCompleted) && logs[s.n] && (
-                <div className="text-[11px] font-mono text-[var(--text-muted)] pl-4 border-l border-[var(--border)] ml-3">
+              {/* Optional minimal log display if active */}
+              {(isActive && logs[s.n]) && (
+                <div className="text-[13px] text-[var(--text-muted)] ml-7">
                   {logs[s.n]}
                 </div>
               )}
             </div>
           );
         })}
+        <div className="mt-8 text-[13px] text-[var(--text-muted)] pt-6 border-t border-[var(--border)]">
+          Analyzing 100,000 candidates
+        </div>
       </div>
     </div>
   );
