@@ -1,135 +1,90 @@
-import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Menu, X } from 'lucide-react';
-import './styles/tokens.css';
-import UploadView from './components/UploadView';
-import PipelineView from './components/PipelineView';
-import ResultsView from './components/ResultsView';
-import AboutView from './components/AboutView';
+import { useEffect, useState } from 'react'
+import Nav from './components/Nav.jsx'
+import { useTheme } from './hooks/useTheme.js'
+import { useMockData } from './hooks/useMockData.js'
+import AboutView from './views/AboutView.jsx'
+import ResultsView from './views/ResultsView.jsx'
+import UploadView from './views/UploadView.jsx'
+
+const routes = ['upload', 'results', 'about']
+
+function getRouteFromHash() {
+  const hash = window.location.hash.replace('#', '')
+  return routes.includes(hash) ? hash : 'upload'
+}
 
 export default function App() {
-  const [theme, setTheme] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  );
-
-  const [route, setRoute] = useState(() => {
-    const hash = window.location.hash.replace('#', '');
-    return ['upload', 'results', 'about'].includes(hash) ? hash : 'upload';
-  });
-
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // App functional state
-  const [jdText, setJdText] = useState(() => sessionStorage.getItem('perspex_jd') || '');
-  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
-  const [progress, setProgress] = useState(null);
-  const [finalResult, setFinalResult] = useState(null);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+  const [route, setRoute] = useState(getRouteFromHash)
+  const { theme, toggleTheme } = useTheme()
+  const [jdText, setJdText] = useState('')
+  const [jdFile, setJdFile] = useState(null)
+  const [candidateFile, setCandidateFile] = useState(null)
+  const [weights, setWeights] = useState({
+    semantic: 40,
+    behavioral: 30,
+    experience: 20,
+    preference: 10,
+  })
+  const generatedResults = useMockData(weights)
+  const [results, setResults] = useState([])
+  const [hasRun, setHasRun] = useState(false)
+  const [isRunning, setIsRunning] = useState(false)
 
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash.replace('#', '');
-      if (['upload', 'results', 'about'].includes(hash)) {
-        setRoute(hash);
-      } else {
-        setRoute('upload');
-      }
-      setIsMobileMenuOpen(false);
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  const handleNav = (r) => {
-    window.location.hash = r;
-  };
-
-  const handleStart = (jd) => {
-    sessionStorage.setItem('perspex_jd', jd);
-    setJdText(jd);
-    setIsPipelineRunning(true);
-  };
-
-  const handleProgress = (p) => {
-    setProgress(p);
-    if (p.phase === 'complete') {
-      setFinalResult(p);
-      setIsPipelineRunning(false);
-      handleNav('results');
+      setRoute(getRouteFromHash())
     }
-  };
 
-  const NavItems = () => (
-    <>
-      {['upload', 'results', 'about'].map((item) => (
-        <button
-          key={item}
-          onClick={() => handleNav(item)}
-          className={`capitalize ${route === item ? 'font-[600] border-b-2 border-[var(--text-primary)]' : 'font-[400] text-[var(--text-muted)] border-b-2 border-transparent hover:text-[var(--text-primary)]'} pb-1 transition-colors`}
-        >
-          {item}
-        </button>
-      ))}
-    </>
-  );
+    if (!window.location.hash) {
+      window.location.hash = 'upload'
+    } else {
+      handleHashChange()
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  const runRanking = () => {
+    setHasRun(true)
+    setIsRunning(true)
+    setResults([])
+    window.location.hash = 'results'
+
+    window.setTimeout(() => {
+      setResults(generatedResults)
+      setIsRunning(false)
+    }, 2200)
+  }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text-primary)] font-[family-name:var(--font-body)]">
-      
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 h-[48px] w-full bg-[var(--bg)] border-b border-[var(--border)] px-4 md:px-6 flex items-center justify-between">
-        <div className="flex items-center">
-          <span className="font-[family-name:var(--font-display)] text-[18px] text-[var(--text-primary)]">Perspex</span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-6 text-[14px]">
-          <nav className="flex items-center gap-6 h-full pt-1">
-            <NavItems />
-          </nav>
-          <button
-            onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-            className="flex items-center justify-center min-w-[32px] min-h-[32px] text-[var(--text-primary)] hover:opacity-70 transition-opacity"
-          >
-            {theme === 'light' ? <Moon size={16} strokeWidth={1.5} /> : <Sun size={16} strokeWidth={1.5} />}
-          </button>
-        </div>
-
-        <div className="flex md:hidden items-center gap-2">
-          <button
-            onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}
-            className="flex items-center justify-center min-w-[32px] min-h-[32px] text-[var(--text-primary)]"
-          >
-            {theme === 'light' ? <Moon size={16} strokeWidth={1.5} /> : <Sun size={16} strokeWidth={1.5} />}
-          </button>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex items-center justify-center min-w-[32px] min-h-[32px] text-[var(--text-primary)]"
-          >
-            {isMobileMenuOpen ? <X size={18} strokeWidth={1.5} /> : <Menu size={18} strokeWidth={1.5} />}
-          </button>
-        </div>
-      </header>
-
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed top-[48px] left-0 right-0 bg-[var(--bg)] border-b border-[var(--border)] z-40 flex flex-col p-4 gap-4 text-[14px]">
-          <NavItems />
-        </div>
-      )}
-
-      {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col relative w-full">
-        {isPipelineRunning ? (
-          <PipelineView jdText={jdText} onProgress={handleProgress} />
-        ) : (
-          <>
-            {route === 'upload' && <UploadView jdText={jdText} onRun={handleStart} />}
-            {route === 'results' && <ResultsView result={finalResult} onReset={() => handleNav('upload')} />}
-            {route === 'about' && <AboutView />}
-          </>
+    <div className="app-shell">
+      <Nav route={route} theme={theme} onToggleTheme={toggleTheme} />
+      <main className="app-main">
+        {route === 'upload' && (
+          <UploadView
+            jdText={jdText}
+            setJdText={setJdText}
+            jdFile={jdFile}
+            setJdFile={setJdFile}
+            candidateFile={candidateFile}
+            setCandidateFile={setCandidateFile}
+            weights={weights}
+            setWeights={setWeights}
+            onRun={runRanking}
+            isRunning={isRunning}
+          />
         )}
+        {route === 'results' && (
+          <ResultsView
+            results={results}
+            hasRun={hasRun}
+            isRunning={isRunning}
+            onRerun={runRanking}
+          />
+        )}
+        {route === 'about' && <AboutView />}
       </main>
     </div>
-  );
+  )
 }
