@@ -18,7 +18,7 @@ export default function AboutView() {
         
         {/* Section 1 */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)] border-b border-[var(--border)] pb-2">
+          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)]">
             The Problem with Keyword Matching
           </h2>
           <div className="flex flex-col gap-4 text-[15px] leading-[1.7] text-[var(--text-primary)]">
@@ -31,9 +31,11 @@ export default function AboutView() {
           </div>
         </section>
 
+        <hr className="border-[var(--border)]" />
+
         {/* Section 2 */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)] border-b border-[var(--border)] pb-2">
+          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)]">
             Our 5-Stage Pipeline
           </h2>
           <ol className="flex flex-col gap-2 list-decimal list-outside ml-4 text-[15px] leading-[1.7] text-[var(--text-primary)]">
@@ -55,14 +57,16 @@ export default function AboutView() {
           </ol>
         </section>
 
+        <hr className="border-[var(--border)]" />
+
         {/* Section 3 */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)] border-b border-[var(--border)] pb-2">
+          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)]">
             The 23 Behavioral Signals
           </h2>
           <div className="flex flex-col gap-4 text-[15px] leading-[1.7] text-[var(--text-primary)]">
             <p>
-              The <code className="bg-[var(--surface)] px-1.5 py-0.5 rounded text-[13px] font-mono border border-[var(--border)]">redrob_signals</code> object is what moves this beyond resume ranking.
+              The <code className="bg-[var(--surface)] px-1.5 py-0.5 text-[13px] font-mono border border-[var(--border)]">redrob_signals</code> object is what moves this beyond resume ranking.
             </p>
             <p className="text-[var(--text-muted)]">
               Perspex uses a selected subset directly for scoring, while the rest support explainability and validation.
@@ -70,16 +74,18 @@ export default function AboutView() {
           </div>
         </section>
 
+        <hr className="border-[var(--border)]" />
+
         {/* Section 4 */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)] border-b border-[var(--border)] pb-2">
+          <h2 className="text-[15px] font-[600] uppercase tracking-[0.06em] text-[var(--text-muted)]">
             Scoring Formula
           </h2>
           <p className="text-[15px] leading-[1.7] text-[var(--text-primary)]">
             The final score is a weighted combination of semantic alignment, historical behavioral markers, experience depth, and explicit candidate preferences.
           </p>
           
-          <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[4px] p-[12px] font-mono text-[13px] leading-relaxed overflow-x-auto text-[var(--text-primary)]">
+          <div className="bg-[var(--surface)] border border-[var(--border)] p-[12px] font-mono text-[13px] leading-relaxed overflow-x-auto text-[var(--text-primary)]">
             <div className="mb-4">
               FINAL_SCORE = 0.40 × Semantic<br/>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ 0.30 × Behavioral<br/>

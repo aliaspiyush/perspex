@@ -35,15 +35,15 @@ export default function UploadView({ onRun }) {
   return (
     <div className="w-full max-w-[1200px] mx-auto px-6 pt-[40px] pb-16 flex flex-col md:flex-row gap-[48px] items-start">
       
-      {/* LEFT COLUMN - 420px fixed width on desktop */}
-      <div className="w-full md:w-[420px] shrink-0 flex flex-col gap-8">
+      {/* LEFT COLUMN */}
+      <div className="w-full md:w-[420px] shrink-0 flex flex-col gap-6">
         
         {/* JD Section */}
-        <section className="flex flex-col" style={{ gap: '24px' }}>
+        <section className="flex flex-col gap-6">
           <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Job Description</label>
           
           <textarea 
-            className="w-full h-32 p-3 bg-[var(--surface)] border border-[var(--border)] text-[14px] resize-none focus:outline-none focus:border-[var(--text-muted)] transition-colors placeholder:text-[var(--text-faint)] text-[var(--text-primary)] rounded-none"
+            className="w-full h-32 p-3 bg-[var(--surface)] border border-[var(--border)] text-[14px] resize-none focus:outline-none focus:border-[var(--text-muted)] transition-colors placeholder:text-[var(--text-faint)] text-[var(--text-primary)]"
             placeholder="Paste the job description here..."
             value={jdText}
             onChange={(e) => setJdText(e.target.value)}
@@ -76,7 +76,7 @@ export default function UploadView({ onRun }) {
         </section>
 
         {/* Candidate Pool Section */}
-        <section className="flex flex-col" style={{ gap: '24px' }}>
+        <section className="flex flex-col gap-6">
           <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Candidate Pool</label>
           <div 
             onDragOver={(e) => e.preventDefault()} 
@@ -99,10 +99,10 @@ export default function UploadView({ onRun }) {
         </section>
 
         {/* Ranking Config */}
-        <section className="flex flex-col" style={{ gap: '24px' }}>
+        <section className="flex flex-col gap-6">
           <label className="text-[11px] font-[500] tracking-[0.08em] uppercase text-[var(--text-faint)]">Ranking Configuration</label>
           
-          <div className="flex flex-col gap-5 p-4 border border-[var(--border)] bg-[var(--surface)]">
+          <div className="flex flex-col gap-5">
             {Object.entries(weights).map(([key, value]) => (
               <div key={key} className="flex flex-col gap-2">
                 <div className="flex justify-between text-[14px]">
@@ -115,24 +115,23 @@ export default function UploadView({ onRun }) {
                   max="100" 
                   value={value}
                   onChange={(e) => setWeights({...weights, [key]: parseInt(e.target.value)})}
-                  className="w-full accent-[var(--text-primary)] opacity-80 hover:opacity-100"
+                  className="w-full accent-[var(--text-primary)] opacity-80 hover:opacity-100 h-2"
                 />
               </div>
             ))}
+          </div>
 
-            <div className="pt-4 border-t border-[var(--border)]">
-              <span className={`text-[14px] ${sum === 100 ? 'font-[600] text-[var(--text-primary)]' : 'font-[400] text-[var(--text-muted)]'}`}>
-                Total: {sum} / 100
-              </span>
-            </div>
+          <div className="pt-2 border-t border-[var(--border)]">
+            <span className={`text-[14px] ${sum === 100 ? 'font-[600] text-[var(--text-primary)]' : 'font-[400] text-[var(--text-muted)]'}`}>
+              Total: {sum} / 100
+            </span>
           </div>
         </section>
 
-        {/* Primary Action */}
         <button 
           disabled={!isValid}
           onClick={handleRun}
-          className={`w-full h-[40px] flex items-center justify-center text-[14px] font-[500] transition-all rounded-none ${
+          className={`w-full h-[40px] flex items-center justify-center text-[14px] font-[500] transition-all ${
             isValid 
               ? 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] hover:opacity-90' 
               : 'bg-[var(--btn-primary-bg)] text-[var(--btn-primary-text)] opacity-35 cursor-not-allowed'
@@ -145,7 +144,7 @@ export default function UploadView({ onRun }) {
 
       {/* RIGHT COLUMN - Pipeline Diagram */}
       <div className="hidden md:flex flex-1 flex-col mt-2">
-        <h2 className="text-[18px] font-[600] text-[var(--text-primary)] mb-6 font-[family-name:var(--font-display)]">Pipeline Architecture</h2>
+        <div className="text-[18px] font-[600] text-[var(--text-primary)] mb-6">Pipeline Architecture</div>
         
         <div className="flex flex-col">
           {[
@@ -156,7 +155,7 @@ export default function UploadView({ onRun }) {
             { title: 'Ranked Output', desc: 'Consolidates deterministic scores into a strict ranking.' }
           ].map((stage, i) => (
             <div key={i} className="flex gap-4 py-4 border-b border-[var(--border)] items-start">
-              <div className="text-[12px] text-[var(--text-faint)] w-4 pt-0.5">
+              <div className="text-[12px] text-[var(--text-faint)] w-4 pt-0.5 tabular-nums">
                 {i + 1}
               </div>
               <div className="flex flex-col gap-1">
@@ -167,28 +166,28 @@ export default function UploadView({ onRun }) {
           ))}
         </div>
 
-        <div className="flex items-center gap-4 mt-8 pt-4">
+        <div className="flex items-center gap-4 mt-6 pt-6 border-t border-[var(--border)]">
           <div className="flex flex-col gap-1">
             <span className="text-[16px] font-[600] text-[var(--text-primary)]">100,000</span>
-            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Candidates</span>
+            <span className="text-[11px] text-[var(--text-muted)]">candidates</span>
           </div>
           <div className="h-8 w-px bg-[var(--border)]"></div>
           <div className="flex flex-col gap-1">
             <span className="text-[16px] font-[600] text-[var(--text-primary)]">23</span>
-            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Behavioral Signals</span>
+            <span className="text-[11px] text-[var(--text-muted)]">behavioral signals</span>
           </div>
           <div className="h-8 w-px bg-[var(--border)]"></div>
           <div className="flex flex-col gap-1">
             <span className="text-[16px] font-[600] text-[var(--text-primary)]">~41s</span>
-            <span className="text-[11px] text-[var(--text-muted)] uppercase tracking-wider">Runtime</span>
+            <span className="text-[11px] text-[var(--text-muted)]">runtime</span>
           </div>
         </div>
       </div>
       
-      {/* Mobile Right Column equivalent inside details */}
-      <details className="md:hidden w-full border border-[var(--border)] bg-[var(--surface)] mt-8">
-        <summary className="p-4 font-[600] text-[14px] text-[var(--text-primary)] cursor-pointer">Pipeline Architecture</summary>
-        <div className="p-4 pt-0 flex flex-col border-t border-[var(--border)]">
+      {/* Mobile */}
+      <details className="md:hidden w-full">
+        <summary className="text-[14px] font-[500] text-[var(--text-primary)] cursor-pointer py-2 border-b border-[var(--border)]">Pipeline Architecture</summary>
+        <div className="pt-4 flex flex-col">
           {[
             { title: 'JD Parser', desc: 'Extracts core competencies.' },
             { title: 'Honeypot Filter', desc: 'Removes artificial profiles.' },
@@ -197,7 +196,7 @@ export default function UploadView({ onRun }) {
             { title: 'Ranked Output', desc: 'Consolidates strict ranking.' }
           ].map((stage, i) => (
             <div key={i} className="flex gap-4 py-3 border-b border-[var(--border)] last:border-0 items-start">
-              <div className="text-[12px] text-[var(--text-faint)] w-3 pt-0.5">{i + 1}</div>
+              <div className="text-[12px] text-[var(--text-faint)] w-4 pt-0.5 tabular-nums">{i + 1}</div>
               <div className="flex flex-col">
                 <span className="font-[600] text-[14px] text-[var(--text-primary)]">{stage.title}</span>
                 <span className="text-[13px] text-[var(--text-muted)]">{stage.desc}</span>
