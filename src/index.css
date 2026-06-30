@@ -44,9 +44,10 @@
   --color-text-muted: #6b6b6b;
   --color-text-faint: #b0b0b0;
   --color-backdrop: rgba(255, 255, 255, 0.65);
-  --color-nav-bg: rgba(255, 255, 255, 0.55);
-  --color-nav-border: rgba(0, 0, 0, 0.14);
-  --color-nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+  /* Nav glass — opaque enough to frost, translucent enough to blur */
+  --color-nav-bg: rgba(248, 248, 248, 0.82);
+  --color-nav-border: rgba(0, 0, 0, 0.1);
+  --color-nav-shadow: 0 8px 40px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255,255,255,0.9) inset;
 }
 
 [data-theme='dark'] {
@@ -59,9 +60,10 @@
   --color-text-muted: #888888;
   --color-text-faint: #4a4a4a;
   --color-backdrop: rgba(15, 15, 15, 0.65);
-  --color-nav-bg: rgba(20, 20, 20, 0.55);
-  --color-nav-border: rgba(255, 255, 255, 0.12);
-  --color-nav-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255,255,255,0.04) inset;
+  /* Nav glass */
+  --color-nav-bg: rgba(18, 18, 18, 0.82);
+  --color-nav-border: rgba(255, 255, 255, 0.1);
+  --color-nav-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255,255,255,0.05) inset;
 }
 
 *,
@@ -145,8 +147,8 @@ svg {
   min-height: var(--nav-height);
   padding-inline: var(--space-6);
   background: var(--color-nav-bg);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(48px) saturate(200%) brightness(1.04);
+  -webkit-backdrop-filter: blur(48px) saturate(200%) brightness(1.04);
   border: 1px solid var(--color-nav-border);
   border-radius: 9999px;
   width: min(calc(100% - var(--space-8)), 76rem);
