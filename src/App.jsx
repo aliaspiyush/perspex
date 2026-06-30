@@ -3,14 +3,15 @@ import Nav from './components/Nav.jsx'
 import { useTheme } from './hooks/useTheme.js'
 import { useMockData } from './hooks/useMockData.js'
 import AboutView from './views/AboutView.jsx'
+import HomeView from './views/HomeView.jsx'
 import ResultsView from './views/ResultsView.jsx'
 import UploadView from './views/UploadView.jsx'
 
-const routes = ['upload', 'results', 'about']
+const routes = ['home', 'upload', 'results', 'about']
 
 function getRouteFromHash() {
   const hash = window.location.hash.replace('#', '')
-  return routes.includes(hash) ? hash : 'upload'
+  return routes.includes(hash) ? hash : 'home'
 }
 
 export default function App() {
@@ -36,7 +37,7 @@ export default function App() {
     }
 
     if (!window.location.hash) {
-      window.location.hash = 'upload'
+      window.location.hash = 'home'
     } else {
       handleHashChange()
     }
@@ -61,6 +62,7 @@ export default function App() {
     <div className="app-shell">
       <Nav route={route} theme={theme} onToggleTheme={toggleTheme} />
       <main className="app-main">
+        {route === 'home' && <HomeView />}
         {route === 'upload' && (
           <UploadView
             jdText={jdText}

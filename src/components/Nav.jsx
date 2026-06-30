@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ThemeToggle from './ThemeToggle.jsx'
 
 const links = [
+  { id: 'home', label: 'Home' },
   { id: 'upload', label: 'Upload' },
   { id: 'results', label: 'Results' },
   { id: 'about', label: 'About' },
@@ -28,8 +29,8 @@ export default function Nav({ route, theme, onToggleTheme }) {
     <header className="site-nav">
       <a 
         className="brand" 
-        href="#upload" 
-        aria-label="Perspex upload"
+        href="#home" 
+        aria-label="Perspex home"
       >
         <LensMark />
         <span>Perspex <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>/ AI Candidate Ranker</span></span>
