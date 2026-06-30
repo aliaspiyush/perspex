@@ -32,7 +32,7 @@ export default function Nav({ route, theme, onToggleTheme }) {
         aria-label="Perspex upload"
       >
         <LensMark />
-        <span>Perspex</span>
+        <span>Perspex <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>/ AI Candidate Ranker</span></span>
       </a>
 
       <nav className={`nav-links ${isOpen ? 'is-open' : ''}`} aria-label="Primary navigation">

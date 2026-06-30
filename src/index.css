@@ -210,7 +210,7 @@ svg {
 }
 
 .theme-toggle {
-  border-color: var(--color-border);
+  border-color: transparent;
 }
 
 .menu-button {
