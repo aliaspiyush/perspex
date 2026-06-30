@@ -37,86 +37,98 @@ const dimensions = [
 export default function AboutView() {
   return (
     <article className="page about-page">
-      <div className="about-powered-strip">
-        <span>Powered by</span>
-        <strong>Gemini 2.5 Flash</strong>
-        <span className="about-powered-dot">·</span>
-        <span>Google DeepMind</span>
-      </div>
+      <header className="about-header">
+        <div className="about-powered-strip">
+          <span>Powered by</span>
+          <strong>Gemini 2.5 Flash</strong>
+          <span className="about-powered-dot">·</span>
+          <span>Google DeepMind</span>
+        </div>
+        <h1>How Perspex Works</h1>
+      </header>
 
-      <h1>How Perspex Works</h1>
-      <p>
-        Perspex is an AI-native candidate ranking system built for the{' '}
-        <strong>Data &amp; AI Challenge: Intelligent Candidate Discovery</strong>.
-        It doesn't filter résumés — it intelligently ranks candidates by true
-        contextual fit using Gemini 2.5 Flash as its core reasoning engine.
-      </p>
+      <div className="about-grid">
+        {/* Left Column: Context and Rationale */}
+        <div className="about-col">
+          <section className="about-section">
+            <p className="about-intro">
+              Perspex is an AI-native candidate ranking system built for the{' '}
+              <strong>Data &amp; AI Challenge: Intelligent Candidate Discovery</strong>.
+              It doesn't filter résumés — it intelligently ranks candidates by true
+              contextual fit using Gemini 2.5 Flash as its core reasoning engine.
+            </p>
+          </section>
 
-      <hr />
+          <section className="about-section">
+            <h2>The Problem with Keyword Matching</h2>
+            <p>
+              Keyword matching rewards candidates who repeat role terms, even when the
+              underlying career history does not support the claim. Perspex replaces keyword
+              overlap with Gemini's language understanding — evaluating what a candidate
+              actually did, not just what words appear on their profile.
+            </p>
+          </section>
 
-      <h2>The Problem with Keyword Matching</h2>
-      <p>
-        Keyword matching rewards candidates who repeat role terms, even when the
-        underlying career history does not support the claim. Perspex replaces keyword
-        overlap with Gemini's language understanding — evaluating what a candidate
-        actually did, not just what words appear on their profile.
-      </p>
+          <section className="about-section">
+            <h2>Why Gemini?</h2>
+            <p>
+              Gemini 2.5 Flash provides the language understanding needed to evaluate
+              candidates the way a senior technical recruiter would — interpreting nuanced
+              job descriptions, understanding what "fine-tuned LLMs at DeepMind" implies
+              versus "worked with AI tools", and generating auditable, candidate-specific
+              reasoning for every rank. All processing happens client-side via the Gemini API.
+              No candidate data is stored or sent to any third-party server.
+            </p>
+          </section>
+        </div>
 
-      <hr />
+        {/* Right Column: Pipeline and Scoring */}
+        <div className="about-col">
+          <section className="about-section">
+            <h2>The AI Pipeline</h2>
+            <ol className="about-pipeline-list">
+              {pipeline.map(({ name, tag, description }) => (
+                <li key={name} className="about-pipeline-item">
+                  <div className="about-pipeline-header">
+                    <strong>{name}</strong>
+                    <span className="about-pipeline-tag">{tag}</span>
+                  </div>
+                  <span>{description}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
 
-      <h2>The AI Pipeline</h2>
-      <ol className="about-pipeline-list">
-        {pipeline.map(({ name, tag, description }) => (
-          <li key={name} className="about-pipeline-item">
-            <div className="about-pipeline-header">
-              <strong>{name}</strong>
-              <span className="about-pipeline-tag">{tag}</span>
+          <section className="about-section">
+            <h2>Scoring Formula</h2>
+            <p>
+              Every candidate receives four scores (0–100) from Gemini, fused into a single
+              composite rank. Weights are configurable before each run.
+            </p>
+
+            <div className="about-dimensions">
+              {dimensions.map(({ weight, label, desc }) => (
+                <div key={label} className="about-dimension-row">
+                  <div className="about-dimension-header">
+                    <strong>{label}</strong>
+                    <span className="about-dimension-weight">{weight}</span>
+                  </div>
+                  <span className="about-dimension-desc">{desc}</span>
+                </div>
+              ))}
             </div>
-            <span>{description}</span>
-          </li>
-        ))}
-      </ol>
 
-      <hr />
-
-      <h2>Scoring Formula</h2>
-      <p>
-        Every candidate receives four scores (0–100) from Gemini, fused into a single
-        composite rank. Weights are configurable before each run.
-      </p>
-
-      <div className="about-dimensions">
-        {dimensions.map(({ weight, label, desc }) => (
-          <div key={label} className="about-dimension-row">
-            <div className="about-dimension-header">
-              <strong>{label}</strong>
-              <span className="about-dimension-weight">{weight}</span>
-            </div>
-            <span className="about-dimension-desc">{desc}</span>
-          </div>
-        ))}
-      </div>
-
-      <pre className="formula-block">{`FINAL_SCORE =
+            <pre className="formula-block">{`FINAL_SCORE =
   0.40 × Semantic Fit       (Gemini contextual scoring)
 + 0.30 × Behavioral Signals (activity, publications, GitHub)
 + 0.20 × Experience Depth   (years, seniority, trajectory)
 + 0.10 × Preference Fit     (remote, notice, work-mode)
 
 Honeypot filter: keyword-stuffed profiles removed before scoring.
-Each score generated live by Gemini 2.5 Flash with explicit reasoning.`}</pre>
-
-      <hr />
-
-      <h2>Why Gemini?</h2>
-      <p>
-        Gemini 2.5 Flash provides the language understanding needed to evaluate
-        candidates the way a senior technical recruiter would — interpreting nuanced
-        job descriptions, understanding what "fine-tuned LLMs at DeepMind" implies
-        versus "worked with AI tools", and generating auditable, candidate-specific
-        reasoning for every rank. All processing happens client-side via the Gemini API.
-        No candidate data is stored or sent to any third-party server.
-      </p>
+Each score generated live by Gemini 2.5 Flash.`}</pre>
+          </section>
+        </div>
+      </div>
     </article>
   )
 }
