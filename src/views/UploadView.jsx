@@ -8,11 +8,11 @@ const defaultWeights = [
 ]
 
 const stages = [
-  ['01', 'JD Parser', 'Extracts role requirements and seniority signals.'],
-  ['02', 'Honeypot Filter', 'Removes keyword-stuffed and low-intent profiles.'],
-  ['03', 'FAISS Search', 'Retrieves the strongest semantic matches.'],
-  ['04', 'Signal Scorer', 'Blends behavioral, experience, and preference fit.'],
-  ['05', 'Ranked Output', 'Writes the final shortlist for submission.'],
+  ['01', 'Deep JD Understanding', 'Gemini 2.5 Flash parses the job description into a structured schema — required skills, seniority, semantic clusters, anti-patterns.'],
+  ['02', 'Contextual Relevance', 'Candidates scored on semantic fit using Gemini\'s language understanding, not keyword overlap. Context beats keyword counts.'],
+  ['03', 'Signal Integration', 'Behavioral, experience, and preference signals fused with AI semantic scores into a weighted composite per candidate.'],
+  ['04', 'Honeypot Filter', 'Keyword-stuffed and low-intent profiles identified and removed before the final ranking is produced.'],
+  ['05', 'Ranked Output', 'Gemini produces the final shortlist with per-candidate scores, explicit reasoning, key strengths, and an executive summary.'],
 ]
 
 function formatFileSize(file) {
@@ -220,9 +220,9 @@ export default function UploadView({
           ))}
         </div>
         <div className="stats-row" aria-label="Pipeline statistics">
-          <span>100K candidates</span>
-          <span>23 signals</span>
-          <span>~41s runtime</span>
+          <span>Gemini 2.5 Flash</span>
+          <span>4 signal layers</span>
+          <span>Real-time AI ranking</span>
         </div>
       </aside>
     </div>
