@@ -1,0 +1,7 @@
+team_name: Perspex
+challenge: Data & AI Challenge - Intelligent Candidate Discovery
+entrypoint: python rank.py
+dependencies: requirements.txt
+docker_image: python:3.11-slim
+offline_compatible: true
+description: "An offline deterministic semantic ranking engine leveraging sentence-transformers and multi-signal fusion to sort candidates effectively."

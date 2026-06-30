@@ -56,8 +56,28 @@ FINAL_SCORE =
 - Node.js (v18+)
 - A [Google Gemini API Key](https://aistudio.google.com/app/apikey) (Free tier is perfectly fine).
 
-### Installation
+### Redrob Challenge Submission (Offline CPU Pipeline)
 
+Perspex includes a fully offline, deterministic ranking backend built to satisfy the strict Redrob evaluation constraints (no network, CPU-only, exact 100 row output).
+
+**Using Docker (Recommended):**
+\`\`\`bash
+docker build -t perspex-ranker .
+docker run --rm -v $(pwd):/app perspex-ranker public/sample_jd.txt public/sample_candidates.jsonl
+\`\`\`
+*(This will generate a \`submission.csv\` in your current directory).*
+
+**Using Python directly:**
+\`\`\`bash
+pip install -r requirements.txt
+python rank.py public/sample_jd.txt public/sample_candidates.jsonl
+\`\`\`
+
+---
+
+### Web Demo UI (Live Gemini Stream)
+
+To view the interactive front-end demo with real-time AI progress streaming:
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/aliaspiyush/perspex.git

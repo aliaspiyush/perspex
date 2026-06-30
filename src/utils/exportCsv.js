@@ -1,5 +1,13 @@
 export function exportCsv(results) {
-  const rows = [['candidate_id', 'rank'], ...results.map((result) => [result.id, result.rank])]
+  const rows = [
+    ['candidateid', 'rank', 'score', 'reasoning'],
+    ...results.map((r) => [
+      r.candidate_id || r.id, 
+      r.rank, 
+      r.overall_score ?? 0, 
+      `"${(r.reasoning || '').replace(/"/g, '""')}"`
+    ])
+  ]
   const blob = new Blob([rows.map((row) => row.join(',')).join('\n')], { type: 'text/csv' })
   const a = document.createElement('a')
 
