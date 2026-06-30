@@ -840,6 +840,12 @@ svg {
   gap: var(--space-10);
 }
 
+/* Make the left column sticky so it floats nicely alongside the longer right column */
+.about-grid > .about-col:first-child {
+  position: sticky;
+  top: 100px;
+}
+
 .about-section {
   display: flex;
   flex-direction: column;
