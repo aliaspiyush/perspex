@@ -131,15 +131,21 @@ svg {
 
 .site-nav {
   position: sticky;
-  top: 0;
+  top: var(--space-4);
   z-index: 30;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   min-height: var(--nav-height);
   padding-inline: var(--space-6);
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg);
+  background: var(--color-backdrop);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: 9999px;
+  width: min(calc(100% - var(--space-8)), 76rem);
+  margin-inline: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .brand {
@@ -170,18 +176,25 @@ svg {
 
 .nav-link,
 .config-toggle {
-  min-height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding-inline: var(--space-4);
   border: 0;
+  border-radius: 9999px;
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
   font-size: var(--text-sm);
-  text-align: left;
+  text-align: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .nav-link[aria-current='page'] {
   color: var(--color-text);
   font-weight: 600;
+  background: var(--color-surface-raised);
 }
 
 .nav-actions {
@@ -198,7 +211,7 @@ svg {
   width: 2.75rem;
   height: 2.75rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-control);
+  border-radius: 9999px;
   background: transparent;
   color: var(--color-text);
   cursor: pointer;
