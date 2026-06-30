@@ -96,6 +96,26 @@ export default function UploadView({
   return (
     <div className="page upload-layout">
       <section className="upload-form" aria-label="Ranking setup">
+
+        {/* Sample files strip */}
+        <div className="sample-strip">
+          <span className="sample-strip-label">No files? Use samples →</span>
+          <a
+            className="sample-link"
+            href="/sample_jd.txt"
+            download="sample_jd.txt"
+          >
+            ↓ sample_jd.txt
+          </a>
+          <a
+            className="sample-link"
+            href="/sample_candidates.jsonl"
+            download="sample_candidates.jsonl"
+          >
+            ↓ sample_candidates.jsonl
+          </a>
+        </div>
+
         <div className="form-section">
           <p className="section-label">Job Description</p>
           {!jdFile ? (

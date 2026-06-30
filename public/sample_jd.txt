@@ -1,0 +1,52 @@
+SENIOR AI/ML ENGINEER — PERSPEX INTELLIGENCE LABS
+==================================================
+
+ABOUT THE ROLE
+--------------
+We are hiring a Senior AI/ML Engineer to join our core research and product team.
+You will design, build, and ship production-grade machine learning systems that power
+Perspex's candidate-intelligence platform. This is a high-ownership, high-impact role:
+you will work across the full ML lifecycle — from research and experimentation to
+deployment and monitoring — with direct influence on product direction.
+
+WHAT YOU'LL DO
+--------------
+- Architect and implement large-scale ML pipelines for embedding, retrieval, and ranking
+- Fine-tune and evaluate large language models (LLMs) for domain-specific ranking tasks
+- Design and maintain vector search infrastructure (FAISS, Pinecone, Weaviate, or similar)
+- Build evaluation frameworks and maintain ground-truth datasets for continuous improvement
+- Collaborate with product and engineering to ship ML features end-to-end
+- Define and monitor production model health metrics; own the model reliability SLA
+- Mentor mid-level engineers; drive best practices in experimentation and model governance
+- Contribute to internal tooling for dataset labelling, feature engineering, and A/B testing
+
+REQUIRED QUALIFICATIONS
+-----------------------
+- 5+ years of industry experience in ML/AI engineering or applied research
+- Proficiency in Python; strong command of PyTorch or JAX
+- Hands-on experience with transformer-based LLMs (fine-tuning, RLHF, evaluation)
+- Experience building semantic search or recommendation systems at scale
+- Familiarity with MLOps: experiment tracking (MLflow/W&B), model registries, CI/CD for ML
+- Strong understanding of information retrieval, embeddings, and approximate nearest neighbour (ANN) algorithms
+- Ability to read and implement ML research papers independently
+- Excellent written and verbal communication skills
+
+PREFERRED QUALIFICATIONS
+------------------------
+- Experience with Gemini, GPT-4, Claude, or other frontier model APIs
+- Background in NLP, ranking systems, or talent/HR-tech domains
+- Prior work with RLHF, DPO, or other alignment techniques
+- Published research (conference papers, pre-prints) in ML/AI
+- Experience deploying ML systems on GCP, AWS, or Azure
+
+WHAT WE OFFER
+-------------
+- Competitive salary: $180K–$240K base + equity
+- Remote-first with quarterly offsites
+- $5,000 annual learning budget
+- Top-tier health, dental, and vision
+- 4-day work week pilot in Q3 2025
+
+LOCATION: Remote (US/EU time zone preferred)
+EMPLOYMENT TYPE: Full-time
+REPORTS TO: Head of AI Research
