@@ -203,16 +203,14 @@ export default function ResultsView({ results, hasRun, isRunning, onRerun }) {
 
   if (!hasRun) {
     return (
-      <section className="flex flex-col justify-center items-center h-[calc(100vh-100px)] w-full">
-        <div className="flex flex-col gap-3 w-full max-w-[400px] text-left">
-          <h1 className="text-lg font-medium text-[var(--text-primary)] m-0">No results yet.</h1>
-          <p className="text-sm text-[var(--text-muted)] leading-relaxed m-0 mb-3">
-            Upload a job description and candidate pool on the Upload screen, then run Perspex to see the ranked shortlist here.
-          </p>
-          <a href="#upload" className="inline-flex self-start text-sm font-medium text-[var(--text-primary)] border-b border-[var(--border)] pb-0.5 hover:opacity-70 transition-opacity decoration-transparent">
-            Go to Upload &rarr;
-          </a>
-        </div>
+      <section className="empty-state">
+        <h1>No results yet.</h1>
+        <p>
+          Upload a job description and candidate pool on the Upload screen, then run Perspex to see the ranked shortlist here.
+        </p>
+        <a href="#upload">
+          Go to Upload &rarr;
+        </a>
       </section>
     )
   }
