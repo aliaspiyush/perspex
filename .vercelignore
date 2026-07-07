@@ -1,0 +1,5 @@
+# Ignore offline Python backend files so Vercel doesn't try to build them
+requirements.txt
+rank.py
+Dockerfile
+submission_metadata.yaml
